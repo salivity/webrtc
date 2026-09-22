@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How WebRTC Supports Native Screen Sharing - webrtc</title>
+    <meta name="description" content="WebRTC (Web Real-Time Communication) provides native, plugin-free screen sharing capabilities directly within modern web browsers. This article explains how WebRTC implements this functionality, focusing on the browser-level APIs used to capture the scre">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/how-web-rtc-supports-native-screen-sharing">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How WebRTC Supports Native Screen Sharing - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/how-web-rtc-supports-native-screen-sharing" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="WebRTC (Web Real-Time Communication) provides native, plugin-free screen sharing capabilities directly within modern web browsers. This article explains how WebRTC implements this functionality, focusing on the browser-level APIs used to capture the scre" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-webrtc-supports-native-screen-sharing">How WebRTC Supports
+Native Screen Sharing</h1>
+<p>WebRTC (Web Real-Time Communication) provides native, plugin-free
+screen sharing capabilities directly within modern web browsers. This
+article explains how WebRTC implements this functionality, focusing on
+the browser-level APIs used to capture the screen, the security measures
+that protect user privacy, and how the captured video streams are
+encoded and transmitted to peers in real time.</p>
+<h2 id="the-getdisplaymedia-api">The getDisplayMedia API</h2>
+<p>The foundation of native screen sharing in WebRTC is the
+<code>MediaDevices.getDisplayMedia()</code> API. This JavaScript method
+instructs the browser to prompt the user to select a display surface to
+capture. Unlike camera access via <code>getUserMedia()</code>,
+<code>getDisplayMedia()</code> is specifically designed for screen,
+window, and tab capture.</p>
+<p>When this API is called, the browser opens a secure system dialog.
+The user can choose to share:</p>
+<ul>
+<li><strong>The Entire Screen:</strong> Captures everything visible on
+the selected monitor.</li>
+<li><strong>An Application Window:</strong> Limits capture to a specific
+open application.</li>
+<li><strong>A Browser Tab:</strong> Captures only the contents of a
+specific web tab, often including the option to share that tab's
+audio.</li>
+</ul>
+<h2 id="security-and-user-consent">Security and User Consent</h2>
+<p>Security is a fundamental pillar of WebRTC's screen sharing design.
+Browsers enforce strict security rules to prevent malicious websites
+from secretly recording a user's screen:</p>
+<ul>
+<li><strong>User Gesture Requirement:</strong> A screen capture session
+can only be initiated by a direct user action, such as clicking a "Share
+Screen" button. It cannot be triggered programmatically on page
+load.</li>
+<li><strong>Explicit Consent:</strong> The website cannot choose what to
+share; the user must manually select the screen, window, or tab from the
+browser-controlled popup.</li>
+<li><strong>Visual Indicators:</strong> Once sharing begins, browsers
+display highly visible indicators (such as a glowing border around the
+shared window or a floating notification dock) to remind the user that
+their screen is actively being captured.</li>
+</ul>
+<h2 id="processing-the-captured-mediastream">Processing the Captured
+MediaStream</h2>
+<p>Once the user grants permission and selects a source, the
+<code>getDisplayMedia()</code> promise resolves and returns a
+<code>MediaStream</code> object. This stream contains a video track (and
+optionally, an audio track if the user chose to share system or tab
+audio).</p>
+<p>Developers can handle this <code>MediaStream</code> in several
+ways:</p>
+<ul>
+<li>Render it locally inside an HTML <code>&lt;video&gt;</code> element
+so the presenter can see what they are sharing.</li>
+<li>Feed it into an <code>RTCPeerConnection</code> to transmit the
+stream to other participants in a session.</li>
+<li>Manipulate the stream frames using HTML <code>&lt;canvas&gt;</code>
+elements for post-processing or recording.</li>
+</ul>
+<h2 id="encoding-and-peer-to-peer-transmission">Encoding and
+Peer-to-Peer Transmission</h2>
+<p>To transmit the shared screen to other users, WebRTC adds the video
+track to an active <code>RTCPeerConnection</code> instance. WebRTC then
+manages the encoding, transport, and decoding process:</p>
+<ol type="1">
+<li><strong>Codec Optimization:</strong> WebRTC utilizes video codecs
+like VP8, VP9, or H.264. When screen sharing, the browser configures
+these encoders to prioritize detail and text readability over motion.
+This is the opposite of webcam video, where fluid motion is prioritized
+over sharp detail.</li>
+<li><strong>Dynamic Bandwidth Control:</strong> WebRTC constantly
+monitors network conditions. If bandwidth drops, the browser
+automatically reduces the frame rate (often dropping as low as 1 to 5
+frames per second) to preserve high resolution, ensuring that text and
+static images remain legible for remote viewers.</li>
+<li><strong>Encryption:</strong> All media transmitted via WebRTC,
+including screen shares, is encrypted end-to-end using Secure Real-time
+Transport Protocol (SRTP). This ensures that the screen share content
+cannot be intercepted as it travels peer-to-peer or through intermediary
+servers.</li>
+</ol></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

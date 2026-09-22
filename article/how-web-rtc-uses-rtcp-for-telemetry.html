@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How WebRTC Uses RTCP for Telemetry - webrtc</title>
+    <meta name="description" content="WebRTC relies on the Real-time Transport Control Protocol (RTCP) to monitor and maintain the quality of real-time audio and video streams. This article explains how WebRTC utilizes RTCP for telemetry, focusing on how it gathers performance statistics, ma">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/how-web-rtc-uses-rtcp-for-telemetry">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How WebRTC Uses RTCP for Telemetry - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/how-web-rtc-uses-rtcp-for-telemetry" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="WebRTC relies on the Real-time Transport Control Protocol (RTCP) to monitor and maintain the quality of real-time audio and video streams. This article explains how WebRTC utilizes RTCP for telemetry, focusing on how it gathers performance statistics, ma" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-webrtc-uses-rtcp-for-telemetry">How WebRTC Uses RTCP for
+Telemetry</h1>
+<p>WebRTC relies on the Real-time Transport Control Protocol (RTCP) to
+monitor and maintain the quality of real-time audio and video streams.
+This article explains how WebRTC utilizes RTCP for telemetry, focusing
+on how it gathers performance statistics, manages network congestion,
+synchronizes media tracks, and facilitates feedback loops to ensure a
+seamless user experience.</p>
+<h2 id="the-role-of-rtcp-in-webrtc">The Role of RTCP in WebRTC</h2>
+<p>In WebRTC sessions, media payload (audio and video) is transmitted
+using the Real-time Transport Protocol (RTP). To ensure this media is
+delivered efficiently, WebRTC uses RTCP as a sister protocol running in
+parallel. While RTP carries the actual media, RTCP carries the telemetry
+data—control packets that provide feedback on the quality of the
+transmission.</p>
+<p>This telemetry allows WebRTC applications to dynamically adapt to
+changing network conditions in real time.</p>
+<h2 id="key-telemetry-metrics-collected-by-rtcp">Key Telemetry Metrics
+Collected by RTCP</h2>
+<p>RTCP gathers and shares critical performance metrics between peers
+through specific report types:</p>
+<h3 id="1-sender-reports-sr">1. Sender Reports (SR)</h3>
+<p>Sent by the party transmitting the media, Sender Reports contain:</p>
+<ul>
+<li><strong>NTP Timestamps:</strong> Absolute wall-clock time used to
+synchronize different media streams (such as matching audio with video
+for lip-sync).</li>
+<li><strong>RTP Timestamps:</strong> Relative time markers mapping to
+the NTP time.</li>
+<li><strong>Transmission Statistics:</strong> Total packet and byte
+counts sent, allowing the receiver to measure throughput.</li>
+</ul>
+<h3 id="2-receiver-reports-rr">2. Receiver Reports (RR)</h3>
+<p>Sent by the party receiving the media, Receiver Reports provide
+feedback on the network's health:</p>
+<ul>
+<li><strong>Packet Loss Fraction:</strong> The percentage of packets
+lost since the last report.</li>
+<li><strong>Cumulative Number of Packets Lost:</strong> The total number
+of lost packets over the entire session.</li>
+<li><strong>Inter-arrival Jitter:</strong> An estimate of the
+statistical variance in packet arrival times, which indicates network
+instability.</li>
+<li><strong>Last Sender Report Timestamp:</strong> Used to calculate
+Round-Trip Time (RTT).</li>
+</ul>
+<h2 id="dynamic-congestion-control-and-bandwidth-adaptation">Dynamic
+Congestion Control and Bandwidth Adaptation</h2>
+<p>WebRTC uses RTCP telemetry to implement congestion control algorithms
+(such as Google Congestion Control). By analyzing packet loss, jitter,
+and RTT from Receiver Reports, WebRTC determines the available network
+bandwidth.</p>
+<p>If the telemetry indicates high packet loss or rising latency, the
+sending WebRTC client automatically reduces its bitrate, lowers video
+resolution, or drops the frame rate to prevent call degradation.
+Conversely, when telemetry reports a stable, low-latency connection,
+WebRTC scales up the media quality.</p>
+<h2 id="error-recovery-and-feedback-mechanisms">Error Recovery and
+Feedback Mechanisms</h2>
+<p>In addition to periodic reports, WebRTC utilizes specialized RTCP
+feedback messages for rapid error recovery:</p>
+<ul>
+<li><strong>Negative Acknowledgements (NACK):</strong> When a receiver
+detects a gap in RTP sequence numbers (indicating missing packets), it
+sends an RTCP NACK message to request immediate retransmission of those
+specific packets.</li>
+<li><strong>Picture Loss Indication (PLI):</strong> If a receiver loses
+a critical video frame (like an I-frame) and cannot decode the incoming
+video, it sends an RTCP PLI. This tells the sender to generate and
+transmit a new full keyframe.</li>
+</ul>
+<p>By leveraging these RTCP telemetry features, WebRTC continuously
+monitors network performance and makes sub-second adjustments, ensuring
+reliable communication even over unstable wireless networks.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why Does WebRTC Need a Signaling Server? - webrtc</title>
+    <meta name="description" content="WebRTC enables direct peer-to-peer communication between browsers for sharing video, audio, and data. However, because devices cannot inherently discover or communicate with each other over the internet without prior coordination, they require an interme">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/why-does-web-rtc-need-a-signaling-server">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Why Does WebRTC Need a Signaling Server? - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/why-does-web-rtc-need-a-signaling-server" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="WebRTC enables direct peer-to-peer communication between browsers for sharing video, audio, and data. However, because devices cannot inherently discover or communicate with each other over the internet without prior coordination, they require an interme" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="why-does-webrtc-need-a-signaling-server">Why Does WebRTC Need a
+Signaling Server?</h1>
+<p>WebRTC enables direct peer-to-peer communication between browsers for
+sharing video, audio, and data. However, because devices cannot
+inherently discover or communicate with each other over the internet
+without prior coordination, they require an intermediary known as a
+signaling server. This article explains the essential role of signaling
+in WebRTC, detailing how it facilitates peer discovery, coordinates
+media compatibility, and resolves network routing challenges to
+establish a direct connection.</p>
+<h2 id="1-peer-discovery-and-initiating-communication">1. Peer Discovery
+and Initiating Communication</h2>
+<p>Before two browsers can stream data directly to one another, they
+have no way of knowing each other's location or intent to connect. A
+signaling server acts as a shared meeting point. One peer connects to
+the signaling server to register its presence, and the other peer does
+the same. The server then acts as a post office, forwarding the initial
+handshake messages that allow both parties to discover each other and
+agree to start a WebRTC session.</p>
+<h2 id="2-exchanging-media-capabilities-sdp">2. Exchanging Media
+Capabilities (SDP)</h2>
+<p>Different devices support different video and audio formats,
+resolutions, and encryption methods. To ensure they can understand each
+other, peers must agree on these parameters before sending media.</p>
+<p>This is done using the Session Description Protocol (SDP).</p>
+<ul>
+<li>Peer A creates an <strong>SDP Offer</strong> listing its supported
+codecs and settings.</li>
+<li>Peer A sends this offer to the signaling server, which forwards it
+to Peer B.</li>
+<li>Peer B processes the offer, generates an <strong>SDP Answer</strong>
+with its compatible settings, and sends it back through the signaling
+server to Peer A.</li>
+</ul>
+<p>Without the signaling server, there would be no channel to exchange
+these vital configuration files.</p>
+<h2 id="3-navigating-firewalls-and-nats-ice-candidates">3. Navigating
+Firewalls and NATs (ICE Candidates)</h2>
+<p>Most modern internet-connected devices do not have a public IP
+address. Instead, they sit behind routers, firewalls, and Network
+Address Translation (NAT) systems. To bypass these security layers and
+establish a direct connection, WebRTC uses the Interactive Connectivity
+Establishment (ICE) framework.</p>
+<p>Peers use STUN and TURN servers to discover their public-facing IP
+addresses and port combinations, which are packaged as <strong>ICE
+candidates</strong>. These ICE candidates must be shared with the remote
+peer so the devices can test which network path is the most efficient.
+Because the direct peer-to-peer connection does not exist yet, the
+signaling server is the only medium available to pass these ICE
+candidates between the peers.</p>
+<h2 id="summary-of-the-webrtc-connection-flow">Summary of the WebRTC
+Connection Flow</h2>
+<p>The signaling server is only active during the initial setup phase of
+the call. The process follows these steps:</p>
+<ol type="1">
+<li>Both peers connect to the <strong>signaling server</strong>.</li>
+<li>Peer A sends an <strong>SDP Offer</strong> to Peer B via the
+signaling server.</li>
+<li>Peer B sends an <strong>SDP Answer</strong> back to Peer A via the
+signaling server.</li>
+<li>Both peers gather <strong>ICE candidates</strong> (network routes)
+and exchange them through the signaling server.</li>
+<li>The peers attempt to connect directly using the shared routes.</li>
+<li>Once a direct connection is established, the <strong>signaling
+server's job is complete</strong>, and the media stream flows directly
+between the peers.</li>
+</ol></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

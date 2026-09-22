@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor WebRTC Call Quality Using getStats API - webrtc</title>
+    <meta name="description" content="The WebRTC getStats() API is a crucial tool for developers building real-time communication applications, providing direct access to low-level network and media performance data. This article explores how the API works, highlights the critical metrics it">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/monitor-web-rtc-call-quality-using-get-stats-api">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Monitor WebRTC Call Quality Using getStats API - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/monitor-web-rtc-call-quality-using-get-stats-api" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The WebRTC getStats() API is a crucial tool for developers building real-time communication applications, providing direct access to low-level network and media performance data. This article explores how the API works, highlights the critical metrics it" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="monitor-webrtc-call-quality-using-getstats-api">Monitor WebRTC
+Call Quality Using getStats API</h1>
+<p>The WebRTC <code>getStats()</code> API is a crucial tool for
+developers building real-time communication applications, providing
+direct access to low-level network and media performance data. This
+article explores how the API works, highlights the critical metrics it
+exposes—such as packet loss, jitter, and round-trip time—and explains
+how developers can programmatically utilize this data to monitor,
+diagnose, and improve live call quality in real time.</p>
+<p><strong>Understanding the getStats() API</strong> The
+<code>getStats()</code> method is called directly on an active
+<code>RTCPeerConnection</code> instance. It returns a Promise that
+resolves to an <code>RTCStatsReport</code> object, which contains
+detailed, time-stamped information about the local and remote
+audio/video tracks, the network connection, and the data channels.</p>
+<p><strong>Key Metrics for Call Quality Monitoring</strong> To
+programmatically assess the health of a live call, developers monitor
+several critical metrics retrieved from the stats report:</p>
+<ul>
+<li><strong>Packet Loss (<code>packetsLost</code>):</strong> Indicates
+the number of data packets that failed to reach their destination. High
+packet loss causes audio clipping and video freezing.</li>
+<li><strong>Jitter (<code>jitter</code>):</strong> Measures the
+variation in packet arrival time. High jitter leads to choppy audio,
+requiring the system's jitter buffer to work harder to smooth out
+delivery.</li>
+<li><strong>Round-Trip Time (<code>roundTripTime</code>):</strong>
+Measures the network latency between peers. High RTT (typically above
+200–300ms) results in noticeable conversational delays.</li>
+<li><strong>Bitrate (<code>bytesReceived</code> and
+<code>bytesSent</code>):</strong> By calculating the difference in these
+values over a set time interval, developers can determine the current
+throughput of the connection.</li>
+<li><strong>Frame Rate and Resolution (<code>framesDecoded</code>,
+<code>frameWidth</code>, <code>frameHeight</code>):</strong> These
+metrics reveal the actual visual quality of the video streams. Drops in
+these values indicate that the network is congested or the device CPU is
+throttled.</li>
+</ul>
+<p><strong>Implementing Programmatic Monitoring</strong> To monitor call
+quality programmatically, developers implement a polling mechanism. This
+involves calling <code>getStats()</code> at regular intervals—usually
+every one to five seconds—during an active session.</p>
+<p>By comparing the metrics of the current interval against the previous
+one, the application calculates real-time performance deltas, such as
+the current kilobits per second (Kbps) or sudden spikes in packet
+loss.</p>
+<p><strong>Taking Action on the Data</strong> Once the application
+programmatically detects that connection quality has crossed a negative
+threshold, it can automatically trigger corrective actions:</p>
+<ul>
+<li><strong>User Alerts:</strong> Displaying a visual notification
+warning the user of a "poor network connection."</li>
+<li><strong>Dynamic Quality Adaptation:</strong> Lowering the outgoing
+video resolution or frame rate to conserve bandwidth before the call
+drops.</li>
+<li><strong>Audio Fallback:</strong> Automatically disabling the video
+stream and switching to an audio-only call if bandwidth drops below a
+sustainable threshold.</li>
+<li><strong>Telemetry Logging:</strong> Sending the gathered statistics
+to a centralized server for post-call analysis, helping engineering
+teams identify systemic routing issues or geographic bottlenecks.</li>
+</ul>
+<p>By leveraging the <code>getStats()</code> API, developers can
+transition from passively hosting WebRTC connections to actively
+managing and optimizing the user experience based on real-time network
+conditions.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

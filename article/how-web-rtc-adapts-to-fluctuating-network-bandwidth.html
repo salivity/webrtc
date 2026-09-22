@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How WebRTC Adapts to Fluctuating Network Bandwidth - webrtc</title>
+    <meta name="description" content="Real-time communication relies on stability, but network conditions are constantly changing due to congestion, signal strength, and hardware limitations. WebRTC (Web Real-Time Communication) solves this problem by dynamically adjusting video and audio qu">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/how-web-rtc-adapts-to-fluctuating-network-bandwidth">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How WebRTC Adapts to Fluctuating Network Bandwidth - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/how-web-rtc-adapts-to-fluctuating-network-bandwidth" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Real-time communication relies on stability, but network conditions are constantly changing due to congestion, signal strength, and hardware limitations. WebRTC (Web Real-Time Communication) solves this problem by dynamically adjusting video and audio qu" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-webrtc-adapts-to-fluctuating-network-bandwidth">How WebRTC
+Adapts to Fluctuating Network Bandwidth</h1>
+<p>Real-time communication relies on stability, but network conditions
+are constantly changing due to congestion, signal strength, and hardware
+limitations. WebRTC (Web Real-Time Communication) solves this problem by
+dynamically adjusting video and audio quality during an active call
+without dropping the connection. This article explains the core
+mechanisms WebRTC uses to intelligently adapt to fluctuating network
+bandwidth, including active feedback loops, congestion control
+algorithms, and dynamic media encoding.</p>
+<h2 id="continuous-network-monitoring-via-rtcp">Continuous Network
+Monitoring via RTCP</h2>
+<p>WebRTC relies on constant feedback between the sender and the
+receiver to understand the current state of the network. This is
+achieved using the RTP Control Protocol (RTCP).</p>
+<p>While the Real-time Transport Protocol (RTP) delivers the actual
+audio and video data, RTCP runs alongside it to exchange control
+packets. The receiver regularly sends RTCP Feedback Reports back to the
+sender, containing critical metrics:</p>
+<ul>
+<li><strong>Packet Loss:</strong> The percentage of data packets that
+failed to reach the destination.</li>
+<li><strong>Jitter:</strong> The variation in packet arrival times,
+which indicates network instability.</li>
+<li><strong>Round-Trip Time (RTT):</strong> The time it takes for a
+packet to travel to the receiver and back.</li>
+</ul>
+<p>By analyzing these metrics in real-time, WebRTC can instantly detect
+when a user's network connection is degrading.</p>
+<h2 id="congestion-control-algorithms">Congestion Control
+Algorithms</h2>
+<p>To process the feedback data and estimate available bandwidth, WebRTC
+employs sophisticated congestion control algorithms, most notably Google
+Congestion Control (GCC). GCC uses two main approaches to determine the
+optimal sending rate:</p>
+<h3 id="1-delay-based-controller">1. Delay-Based Controller</h3>
+<p>This controller monitors changes in packet propagation delay. If
+packets start taking longer to arrive (queuing delay), it indicates that
+network routers are buffering data and congestion is imminent. The
+delay-based controller proactively reduces the sending bitrate
+<em>before</em> actual packet loss occurs, preventing call
+disruption.</p>
+<h3 id="2-loss-based-controller">2. Loss-Based Controller</h3>
+<p>This controller acts as a fallback when delay-based estimation is
+insufficient. It analyzes actual packet loss reports:</p>
+<ul>
+<li><strong>Loss &lt; 2%:</strong> The network is healthy. The algorithm
+safely increases the sending bitrate to probe for more capacity.</li>
+<li><strong>Loss between 2% and 10%:</strong> The bitrate remains stable
+to allow the network to recover.</li>
+<li><strong>Loss &gt; 10%:</strong> The network is heavily congested.
+The algorithm immediately reduces the sending bitrate to prevent call
+drops.</li>
+</ul>
+<h2 id="dynamic-media-adaptation">Dynamic Media Adaptation</h2>
+<p>Once the congestion control algorithm determines the safe target
+bandwidth, WebRTC instructs the media engines to adapt the stream
+quality in real-time.</p>
+<h3 id="resolution-and-frame-rate-scaling">Resolution and Frame Rate
+Scaling</h3>
+<p>When bandwidth drops, WebRTC adjusts the video encoder settings on
+the fly:</p>
+<ul>
+<li><strong>Bitrate Reduction:</strong> The encoder compresses the video
+more tightly, which may introduce minor compression artifacts but keeps
+the stream moving.</li>
+<li><strong>Frame Rate Dropping:</strong> If compressing the video is
+not enough, WebRTC reduces the frames per second (e.g., from 30 fps to
+15 fps).</li>
+<li><strong>Resolution Downscaling:</strong> If the bandwidth continues
+to fall, the physical resolution of the video is lowered (e.g., from
+720p to 360p) to preserve a fluid, lag-free motion.</li>
+</ul>
+<h3 id="audio-prioritization">Audio Prioritization</h3>
+<p>Human hearing is highly sensitive to audio gaps, whereas the human
+eye is more forgiving of brief video degradation. Under severe network
+constraints, WebRTC prioritizes audio packets over video. It will
+heavily degrade or entirely pause the video stream to ensure that the
+audio remains clear and uninterrupted.</p>
+<h2 id="multi-party-adaptability-simulcast-and-svc">Multi-Party
+Adaptability: Simulcast and SVC</h2>
+<p>In multi-party video conferences, bandwidth fluctuation becomes more
+complex because users have different network capacities. WebRTC handles
+this using two main technologies:</p>
+<ul>
+<li><strong>Simulcast:</strong> The sender's client encodes and
+transmits multiple resolutions of the same video stream simultaneously
+(e.g., low, medium, and high quality) to a media server. The server then
+routes the appropriate quality stream to each participant based on their
+individual downstream bandwidth.</li>
+<li><strong>Scalable Video Coding (SVC):</strong> The video is encoded
+into a single stream containing multiple layers (a base layer for low
+quality, and enhancement layers for higher quality and frame rates). If
+a participant's bandwidth drops, the media server simply stops
+forwarding the enhancement layers, reducing the bandwidth load without
+requiring the sender to re-encode the video.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

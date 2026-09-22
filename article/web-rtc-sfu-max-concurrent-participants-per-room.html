@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC SFU Max Concurrent Participants Per Room - webrtc</title>
+    <meta name="description" content="This article examines the theoretical and practical limits of concurrent participants in a single room when using a standard WebRTC Selective Forwarding Unit (SFU). It explains the underlying routing mathematics, details the server-side and client-side b">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/web-rtc-sfu-max-concurrent-participants-per-room">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="WebRTC SFU Max Concurrent Participants Per Room - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/web-rtc-sfu-max-concurrent-participants-per-room" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article examines the theoretical and practical limits of concurrent participants in a single room when using a standard WebRTC Selective Forwarding Unit (SFU). It explains the underlying routing mathematics, details the server-side and client-side b" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="webrtc-sfu-max-concurrent-participants-per-room">WebRTC SFU Max
+Concurrent Participants Per Room</h1>
+<p>This article examines the theoretical and practical limits of
+concurrent participants in a single room when using a standard WebRTC
+Selective Forwarding Unit (SFU). It explains the underlying routing
+mathematics, details the server-side and client-side bottlenecks, and
+establishes the realistic maximum capacities for different video
+conferencing scenarios.</p>
+<h2 id="the-core-scaling-problem-n2-complexity">The Core Scaling
+Problem: <span class="math inline">\(N^2\)</span> Complexity</h2>
+<p>To understand the maximum capacity of an SFU, you must first
+understand how media streams scale. Unlike a Mesh network where clients
+connect directly to each other, an SFU acts as a central hub. Each
+participant sends their media (audio and video) upstream to the SFU
+once. The SFU then routes (forwards) these streams downstream to all
+other participants.</p>
+<p>If there are <span class="math inline">\(N\)</span> participants in a
+room and everyone is publishing and subscribing to everyone else:</p>
+<ul>
+<li><strong>Upstream streams:</strong> <span
+class="math inline">\(N\)</span></li>
+<li><strong>Downstream streams:</strong> <span class="math inline">\(N
+\times (N - 1)\)</span></li>
+<li><strong>Total streams managed by the SFU:</strong> <span
+class="math inline">\(N^2\)</span></li>
+</ul>
+<p>Because the number of streams increases quadratically (<span
+class="math inline">\(O(N^2)\)</span>), resource consumption on both the
+SFU server and the client machines spikes rapidly as the room size
+grows.</p>
+<h2 id="client-side-bottlenecks">Client-Side Bottlenecks</h2>
+<p>While the SFU server is powerful, the absolute bottleneck for
+interactive WebRTC rooms is almost always the client (the user's browser
+and hardware).</p>
+<ol type="1">
+<li><strong>CPU and Decoding Limits:</strong> A standard user device
+(laptop or smartphone) must decode every incoming video stream. Most
+consumer hardware and web browsers struggle to decode more than
+<strong>30 to 50 concurrent video streams</strong> simultaneously before
+experiencing CPU exhaustion, frame drops, and severe lag.</li>
+<li><strong>Download Bandwidth:</strong> If 50 participants each stream
+video at 1 Mbps, a single client would require a consistent 49 Mbps
+download connection. This exceeds the average residential download
+bandwidth of many users.</li>
+</ol>
+<h2 id="server-side-bottlenecks">Server-Side Bottlenecks</h2>
+<p>On the server hosting the SFU, the limitations are defined by network
+throughput and CPU processing:</p>
+<ol type="1">
+<li><strong>Packet Forwarding Rate:</strong> An SFU does not decode
+video, but it decrypts and inspects SRTP packet headers to route them. A
+single CPU core can route hundreds of thousands of packets per second,
+but a single highly active room cannot easily be parallelized across
+multiple CPU cores without introducing latency.</li>
+<li><strong>Network Bandwidth:</strong> A single room with 100
+participants streaming at 1 Mbps requires the SFU to egress roughly 9.9
+Gbps of data (<span class="math inline">\(100 \times 99 \text{
+Mbps}\)</span>) for that single room. This quickly saturates standard 10
+Gbps server network interfaces.</li>
+</ol>
+<h2 id="theoretical-maximum-capacities">Theoretical Maximum
+Capacities</h2>
+<p>Depending on how the SFU room is configured, the theoretical maximum
+number of concurrent participants per room varies:</p>
+<h3 id="1-fully-interactive-mode-everyone-publishing-video--audio">1.
+Fully Interactive Mode (Everyone Publishing Video &amp; Audio)</h3>
+<ul>
+<li><strong>Theoretical Limit:</strong> <strong>50 to 120
+participants</strong></li>
+<li><strong>The Reality:</strong> Without optimizations, client browsers
+will crash or freeze long before the SFU server reaches its limit.</li>
+</ul>
+<h3
+id="2-optimized-interactive-mode-simulcast--active-speaker-detection">2.
+Optimized Interactive Mode (Simulcast &amp; Active Speaker
+Detection)</h3>
+<p>By utilizing <strong>Simulcast</strong> (sending multiple qualities
+of a video stream) and <strong>Active Speaker Detection</strong> (only
+forwarding video for the top 5–10 active talkers while pausing video for
+muted participants):</p>
+<ul>
+<li><strong>Theoretical Limit:</strong> <strong>1,000 to 2,000
+participants</strong></li>
+<li><strong>The Reality:</strong> Only 5 to 10 people are seen and heard
+at any given moment, keeping client-side CPU usage low, while the
+remaining hundreds of participants act as passive listeners who can be
+instantly unmuted.</li>
+</ul>
+<h3 id="3-large-scale-webinar-mode-few-publishers-many-subscribers">3.
+Large-Scale Webinar Mode (Few Publishers, Many Subscribers)</h3>
+<p>In a 1-to-Many or Few-to-Many scenario (e.g., 5 presenters and
+thousands of viewers):</p>
+<ul>
+<li><strong>Theoretical Limit on a Single SFU Node:</strong>
+<strong>5,000 to 10,000 participants</strong></li>
+<li><strong>The Reality:</strong> Since the egress is linear (<span
+class="math inline">\(5 \times N\)</span>), the only bottleneck is the
+server's network bandwidth. By cascading multiple SFU servers together
+(forwarding the presenters' streams to edge SFUs), this limit can
+theoretically scale to <strong>tens of thousands</strong> of concurrent
+participants in a single room.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

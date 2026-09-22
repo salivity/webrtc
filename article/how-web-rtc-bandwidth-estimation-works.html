@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How WebRTC Bandwidth Estimation Works - webrtc</title>
+    <meta name="description" content="Real-time communication relies heavily on adapting to fluctuating network conditions to maintain clear audio and video. This article provides a comprehensive look at how WebRTC continuously calculates and utilizes internal Bandwidth Estimation (BWE) to p">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/how-web-rtc-bandwidth-estimation-works">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How WebRTC Bandwidth Estimation Works - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/how-web-rtc-bandwidth-estimation-works" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Real-time communication relies heavily on adapting to fluctuating network conditions to maintain clear audio and video. This article provides a comprehensive look at how WebRTC continuously calculates and utilizes internal Bandwidth Estimation (BWE) to p" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-webrtc-bandwidth-estimation-works">How WebRTC Bandwidth
+Estimation Works</h1>
+<p>Real-time communication relies heavily on adapting to fluctuating
+network conditions to maintain clear audio and video. This article
+provides a comprehensive look at how WebRTC continuously calculates and
+utilizes internal Bandwidth Estimation (BWE) to prevent network
+congestion. We will break down the transition from receiver-side to
+sender-side estimation, explain the delay-based and loss-based
+algorithms used for calculations, and explore how WebRTC dynamically
+adjusts media bitrates in real time.</p>
+<h2 id="the-role-of-bandwidth-estimation-in-webrtc">The Role of
+Bandwidth Estimation in WebRTC</h2>
+<p>Bandwidth Estimation (BWE) is the mechanism WebRTC uses to determine
+the maximum amount of data it can transmit over a network path without
+causing congestion. Because consumer internet connections (especially
+Wi-Fi and mobile networks) experience constant fluctuations in capacity,
+WebRTC must continuously probe the network, calculate available
+capacity, and adapt its media stream bitrate on the fly.</p>
+<p>If the estimate is too high, the network buffers overflow, leading to
+packet loss, high latency, and frozen video. If the estimate is too low,
+the video quality becomes needlessly poor.</p>
+<h2 id="shift-to-sender-side-bandwidth-estimation">Shift to Sender-Side
+Bandwidth Estimation</h2>
+<p>Historically, WebRTC relied on receiver-side estimation, where the
+receiver calculated the bandwidth and sent a Receiver Estimated Maximum
+Bitrate (REMB) message back to the sender.</p>
+<p>Modern WebRTC implementations have shifted to <strong>Sender-Side
+Bandwidth Estimation</strong>. In this architecture, the receiver acts
+as a simple feedback agent, while the sender does the heavy lifting. The
+key protocol enabling this is <strong>Transport-Wide Congestion Control
+(TWCC)</strong>.</p>
+<p>With TWCC, the sender attaches a transport-wide sequence number to
+every outgoing packet. The receiver keeps track of when these packets
+arrive and sends back feedback packets containing a map of packet
+arrival times. Armed with this precise timing data, the sender
+calculates the network state.</p>
+<h2 id="how-webrtc-calculates-bandwidth">How WebRTC Calculates
+Bandwidth</h2>
+<p>The sender-side BWE engine calculates the target bitrate by combining
+two distinct mathematical models: delay-based estimation and loss-based
+estimation.</p>
+<h3 id="1-delay-based-estimation">1. Delay-Based Estimation</h3>
+<p>Delay-based estimation acts as an early warning system. It detects
+network congestion <em>before</em> packets are actually dropped by
+measuring changes in packet transit delay, known as one-way delay
+variation.</p>
+<ul>
+<li><strong>Trend Detection:</strong> The algorithm groups packets into
+bursts and measures the time difference between when they were sent and
+when they were received.</li>
+<li><strong>State Machine:</strong> Based on the delay trend, the
+estimator enters one of three states:
+<ul>
+<li><strong>Normal:</strong> Arrival delay is stable. The algorithm can
+safely increase the bitrate.</li>
+<li><strong>Underuse:</strong> Delay is decreasing. The queue in the
+network router is clearing.</li>
+<li><strong>Overuse:</strong> Delay is increasing. This indicates that
+network buffers (queues) are filling up, and congestion is
+imminent.</li>
+</ul></li>
+<li><strong>Kalman Filter / Trendline Estimator:</strong> Modern WebRTC
+uses a Trendline Estimator to filter out jitter and accurately predict
+whether the network queue is growing or shrinking. If overuse is
+detected, the estimator immediately lowers the target bitrate.</li>
+</ul>
+<h3 id="2-loss-based-estimation">2. Loss-Based Estimation</h3>
+<p>Loss-based estimation is a reactive backup mechanism. It relies on
+explicit packet loss percentages reported via RTCP feedback or TWCC.</p>
+<ul>
+<li>If packet loss is <strong>low (under 2%)</strong>, the network is
+healthy, and the estimator may slowly increase the bitrate limit.</li>
+<li>If packet loss is <strong>moderate (between 2% and 10%)</strong>,
+the estimator keeps the bitrate stable.</li>
+<li>If packet loss is <strong>high (above 10%)</strong>, the estimator
+immediately scales back the bitrate to relieve network pressure, as
+packet loss is a strong indicator of an already congested network.</li>
+</ul>
+<p>The final bandwidth estimate is typically the minimum value
+calculated by these two controllers (Delay-Based and Loss-Based),
+ensuring a conservative and highly responsive approach to network
+congestion.</p>
+<h2 id="how-webrtc-utilizes-the-estimated-bandwidth">How WebRTC Utilizes
+the Estimated Bandwidth</h2>
+<p>Once the BWE engine calculates a new bandwidth limit, WebRTC
+immediately utilizes this estimate to modify the outgoing media streams
+through several layers of adaptation:</p>
+<ul>
+<li><strong>Encoder Bitrate Adjustment:</strong> The video and audio
+encoders (such as VP8, VP9, H.264, or Opus) are instructed to compress
+the media to fit the newly estimated bandwidth limit.</li>
+<li><strong>Simulcast and SVC (Scalable Video Coding):</strong> If
+WebRTC is routing media through a Selective Forwarding Unit (SFU), it
+can drop entire video layers (e.g., stopping the 1080p stream and only
+sending the 360p stream) to immediately meet lower bandwidth
+requirements without needing to re-encode the video.</li>
+<li><strong>Pacing:</strong> WebRTC does not burst packets onto the
+network all at once. It uses a "Pacer" to distribute the transmission of
+packets evenly over time, matching the rate calculated by the BWE to
+prevent spike-induced congestion.</li>
+<li><strong>Probing:</strong> When network conditions improve, WebRTC
+does not instantly jump to a high bitrate. It transmits temporary
+padding packets (probing) to safely verify if the network can handle a
+higher load before upgrading the actual video resolution.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

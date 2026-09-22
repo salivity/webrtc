@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC Mesh vs Centralized Server Architecture - webrtc</title>
+    <meta name="description" content="This article explores the fundamental architectural differences between a WebRTC Mesh network and centralized server architectures, such as Selective Forwarding Units (SFUs) and Multipoint Control Units (MCUs). We will examine how data flows in both setu">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/web-rtc-mesh-vs-centralized-server-architecture">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="WebRTC Mesh vs Centralized Server Architecture - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/web-rtc-mesh-vs-centralized-server-architecture" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explores the fundamental architectural differences between a WebRTC Mesh network and centralized server architectures, such as Selective Forwarding Units (SFUs) and Multipoint Control Units (MCUs). We will examine how data flows in both setu" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="webrtc-mesh-vs-centralized-server-architecture">WebRTC Mesh vs
+Centralized Server Architecture</h1>
+<p>This article explores the fundamental architectural differences
+between a WebRTC Mesh network and centralized server architectures, such
+as Selective Forwarding Units (SFUs) and Multipoint Control Units
+(MCUs). We will examine how data flows in both setups, compare
+client-side and server-side resource utilization, and analyze which
+architecture is best suited for various real-time communication use
+cases.</p>
+<h2 id="webrtc-mesh-architecture-peer-to-peer">WebRTC Mesh Architecture
+(Peer-to-Peer)</h2>
+<p>In a WebRTC Mesh (P2P) architecture, every participant (peer)
+establishes a direct connection with every other participant in the
+session. There is no intermediate media server to process or route the
+video and audio streams.</p>
+<h3 id="how-data-flows">How Data Flows</h3>
+<p>If there are four participants in a call (A, B, C, and D),
+Participant A must send their media stream individually to B, C, and D.
+Simultaneously, Participant A must receive individual streams from B, C,
+and D.</p>
+<h3 id="key-characteristics">Key Characteristics</h3>
+<ul>
+<li><strong>Client-Side Load:</strong> Client CPU and upload bandwidth
+requirements increase exponentially with every new participant. For
+<span class="math inline">\(N\)</span> participants, each client must
+maintain <span class="math inline">\(N-1\)</span> upstream (upload)
+connections and <span class="math inline">\(N-1\)</span> downstream
+(download) connections.</li>
+<li><strong>Infrastructure Costs:</strong> Virtually zero server costs
+for media routing, as servers are only needed for the initial discovery
+phase (signaling) and NAT traversal (STUN/TURN).</li>
+<li><strong>Scalability:</strong> Very limited. Mesh networks typically
+fail to perform well when a session exceeds 4 to 6 participants due to
+local upload bandwidth and CPU bottlenecks.</li>
+</ul>
+<hr />
+<h2 id="centralized-server-architecture-sfu-and-mcu">Centralized Server
+Architecture (SFU and MCU)</h2>
+<p>In a centralized architecture, participants do not connect directly
+to one another. Instead, everyone connects to a central media server
+that manages the distribution of media streams. There are two primary
+types of centralized WebRTC servers:</p>
+<h3 id="1-selective-forwarding-unit-sfu">1. Selective Forwarding Unit
+(SFU)</h3>
+<p>An SFU receives media streams from each participant and forwards them
+to all other participants without modifying or mixing the media.</p>
+<ul>
+<li><strong>Data Flow:</strong> Each participant uploads exactly one
+stream to the server. The server then clones and routes <span
+class="math inline">\(N-1\)</span> downstream streams to each
+participant.</li>
+<li><strong>Client Load:</strong> High download bandwidth is still
+required, but upload bandwidth is drastically reduced compared to Mesh,
+as clients only upload a single stream.</li>
+</ul>
+<h3 id="2-multipoint-control-unit-mcu">2. Multipoint Control Unit
+(MCU)</h3>
+<p>An MCU receives media streams from all participants, decodes them,
+mixes them into a single consolidated video and audio stream, and
+encodes this single stream to send back to each participant.</p>
+<ul>
+<li><strong>Data Flow:</strong> Each participant uploads exactly one
+stream and downloads exactly one mixed stream from the server.</li>
+<li><strong>Client Load:</strong> Extremely low. The client device
+treats a multi-party call exactly like a simple one-on-one call, making
+it ideal for low-powered legacy devices.</li>
+</ul>
+<hr />
+<h2 id="direct-architectural-comparison">Direct Architectural
+Comparison</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Feature</th>
+<th style="text-align: left;">WebRTC Mesh (P2P)</th>
+<th style="text-align: left;">Centralized SFU</th>
+<th style="text-align: left;">Centralized MCU</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Connection Topology</strong></td>
+<td style="text-align: left;">Full Mesh (Direct P2P)</td>
+<td style="text-align: left;">Star (To Central Server)</td>
+<td style="text-align: left;">Star (To Central Server)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Upstream Streams (per
+client)</strong></td>
+<td style="text-align: left;"><span class="math inline">\(N -
+1\)</span></td>
+<td style="text-align: left;"><span
+class="math inline">\(1\)</span></td>
+<td style="text-align: left;"><span
+class="math inline">\(1\)</span></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Downstream Streams (per
+client)</strong></td>
+<td style="text-align: left;"><span class="math inline">\(N -
+1\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(N -
+1\)</span></td>
+<td style="text-align: left;"><span
+class="math inline">\(1\)</span></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Client CPU &amp; Bandwidth
+Load</strong></td>
+<td style="text-align: left;">High (Scales poorly)</td>
+<td style="text-align: left;">Moderate</td>
+<td style="text-align: left;">Very Low</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Server CPU Load</strong></td>
+<td style="text-align: left;">None</td>
+<td style="text-align: left;">Low (Routing only)</td>
+<td style="text-align: left;">High (Decoding/Encoding)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Infrastructure Cost</strong></td>
+<td style="text-align: left;">Lowest</td>
+<td style="text-align: left;">Moderate</td>
+<td style="text-align: left;">High</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Typical Capacity</strong></td>
+<td style="text-align: left;">2–5 participants</td>
+<td style="text-align: left;">10–100+ participants</td>
+<td style="text-align: left;">Hundreds of participants</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>End-to-End
+Encryption</strong></td>
+<td style="text-align: left;">Supported natively</td>
+<td style="text-align: left;">Challenging (Requires Insertable
+Streams)</td>
+<td style="text-align: left;">Not possible (Server must decrypt)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="summary-of-use-cases">Summary of Use Cases</h2>
+<ul>
+<li><strong>Choose WebRTC Mesh if:</strong> You are building one-on-one
+video calling apps, very small group chat applications (up to 4 people),
+or budget-constrained projects where minimizing server hosting costs is
+a priority.</li>
+<li><strong>Choose an SFU if:</strong> You are building modern
+multi-party video conferencing platforms (like Zoom or Google Meet
+scale) where users have decent internet connections and you require
+high-quality individual streams with layouts managed on the client
+side.</li>
+<li><strong>Choose an MCU if:</strong> You are broadcasting to large
+audiences, targeting low-powered legacy devices, or integrating with
+hardware-based SIP/H.323 videoconferencing systems where bandwidth
+conservation on the client side is paramount.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

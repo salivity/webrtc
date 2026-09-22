@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC Connection State Changes and Disconnections - webrtc</title>
+    <meta name="description" content="This article explores how WebRTC manages real-time connectivity under volatile network conditions, detailing the internal mechanisms that handle temporary drops and abrupt peer disconnections. We will examine the transition of ICE connection states, the">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/web-rtc-connection-state-changes-and-disconnections">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="WebRTC Connection State Changes and Disconnections - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/web-rtc-connection-state-changes-and-disconnections" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explores how WebRTC manages real-time connectivity under volatile network conditions, detailing the internal mechanisms that handle temporary drops and abrupt peer disconnections. We will examine the transition of ICE connection states, the" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="webrtc-connection-state-changes-and-disconnections">WebRTC
+Connection State Changes and Disconnections</h1>
+<p>This article explores how WebRTC manages real-time connectivity under
+volatile network conditions, detailing the internal mechanisms that
+handle temporary drops and abrupt peer disconnections. We will examine
+the transition of ICE connection states, the role of STUN keepalives in
+detecting failures, and how WebRTC uses ICE restarts to automatically
+recover broken sessions without interrupting the user experience.</p>
+<h2 id="the-ice-state-machine-and-connection-health">The ICE State
+Machine and Connection Health</h2>
+<p>WebRTC monitors connection health through two primary state machines:
+<code>RTCPeerConnection.iceConnectionState</code> and
+<code>RTCPeerConnection.connectionState</code>. These states reflect the
+underlying viability of the network path between two peers.</p>
+<p>When network quality degrades or a packet-loss spike occurs, the
+Interactive Connectivity Establishment (ICE) agent detects the
+disruption. If the connection is interrupted, the
+<code>iceConnectionState</code> transitions from <code>connected</code>
+to <code>disconnected</code>. This <code>disconnected</code> state is a
+temporary warning indicating that the path is broken, but the browser
+has not yet given up. If the disruption persists beyond a timeout
+threshold (typically around 10 to 30 seconds, depending on the browser's
+implementation), the state transitions to <code>failed</code>.</p>
+<h2 id="detecting-failures-with-stun-consent-freshness">Detecting
+Failures with STUN Consent Freshness</h2>
+<p>Because WebRTC is peer-to-peer, it cannot rely on a central server to
+know if a peer is still active. To detect sudden disconnections—such as
+a user closing their laptop or entering a tunnel—WebRTC relies on STUN
+Consent Freshness (defined in RFC 7675).</p>
+<p>Once a connection is established, the peers do not remain silent;
+they continuously exchange STUN binding requests and responses as
+keepalive signals.</p>
+<ul>
+<li><strong>Consent Checks:</strong> These checks occur periodically,
+typically every 2.5 to 5 seconds.</li>
+<li><strong>Consent Expiry:</strong> If a peer does not receive a
+response to its STUN binding requests within a specific window (usually
+5 consecutive failures or roughly 9 seconds), the local ICE agent
+revokes consent.</li>
+<li><strong>State Transition:</strong> The loss of consent immediately
+triggers a transition to the <code>disconnected</code> state, alerting
+the application layer that the peer is unreachable.</li>
+</ul>
+<p>If DTLS (Datagram Transport Layer Security) packets also fail to
+receive acknowledgments, the underlying cryptographic association will
+time out, pushing the overall <code>connectionState</code> to
+<code>failed</code>.</p>
+<h2 id="handling-temporary-interruptions-via-ice-restart">Handling
+Temporary Interruptions via ICE Restart</h2>
+<p>When a connection enters the <code>disconnected</code> state due to a
+temporary issue—such as a mobile user transitioning from Wi-Fi to a
+4G/5G cellular network—WebRTC attempts to recover the connection without
+tearing down the call. This is accomplished through an <strong>ICE
+Restart</strong>.</p>
+<p>During an ICE Restart:</p>
+<ol type="1">
+<li>The application or browser triggers a renegotiation.</li>
+<li>The ICE agent generates a new set of local credentials (ice-ufrag
+and ice-pwd) and gathers new network candidates.</li>
+<li>These new candidates are exchanged via the external signaling
+channel.</li>
+<li>The peers perform a fresh round of ICE connectivity checks on the
+new paths.</li>
+<li>If successful, the connection seamlessly transitions back to
+<code>connected</code> over the new network path, minimizing media
+interruption.</li>
+</ol>
+<h2 id="managing-sudden-and-ungraceful-disconnections">Managing Sudden
+and Ungraceful Disconnections</h2>
+<p>In a graceful disconnection, a peer sends an RTCP <code>BYE</code>
+packet and closes the signaling socket. However, in an ungraceful
+disconnection (e.g., immediate network loss or application crash), no
+such teardown signal can be sent.</p>
+<p>WebRTC handles sudden disconnections through a combination of the
+following steps:</p>
+<ol type="1">
+<li><strong>Keepalive Timeout:</strong> The STUN consent checks fail to
+get a response.</li>
+<li><strong>State Change Event:</strong> The browser fires the
+<code>oniceconnectionstatechange</code> and
+<code>onconnectionstatechange</code> events, moving the status to
+<code>disconnected</code> and eventually <code>failed</code>.</li>
+<li><strong>Application-Level Cleanup:</strong> Because WebRTC does not
+automatically close the <code>RTCPeerConnection</code> when states fail,
+the application must listen to these state changes. Once the
+<code>failed</code> state is reached, the application should
+programmatically call <code>peerConnection.close()</code>, release local
+media tracks, and update the user interface to reflect the disconnected
+state.</li>
+</ol></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

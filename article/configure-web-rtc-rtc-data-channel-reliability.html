@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configure WebRTC RTCDataChannel Reliability - webrtc</title>
+    <meta name="description" content="This article explains how to explicitly configure the WebRTC RTCDataChannel for either reliable or unreliable packet delivery. You will learn about the configuration parameters used during channel creation, including how to mimic TCP-like reliability or">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/configure-web-rtc-rtc-data-channel-reliability">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Configure WebRTC RTCDataChannel Reliability - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/configure-web-rtc-rtc-data-channel-reliability" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explains how to explicitly configure the WebRTC RTCDataChannel for either reliable or unreliable packet delivery. You will learn about the configuration parameters used during channel creation, including how to mimic TCP-like reliability or" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="configure-webrtc-rtcdatachannel-reliability">Configure WebRTC
+RTCDataChannel Reliability</h1>
+<p>This article explains how to explicitly configure the WebRTC
+<code>RTCDataChannel</code> for either reliable or unreliable packet
+delivery. You will learn about the configuration parameters used during
+channel creation, including how to mimic TCP-like reliability or
+UDP-like speed and low latency depending on your application's specific
+requirements.</p>
+<p>Yes, the WebRTC <code>RTCDataChannel</code> can be explicitly
+configured for either reliable or unreliable packet delivery. By
+default, a data channel acts like a traditional TCP
+connection—guaranteeing that data packets arrive in order and without
+loss. However, you can customize this behavior during the channel's
+creation to match UDP-like behavior for real-time applications like
+gaming, VoIP, or live streaming.</p>
+<h2 id="how-to-configure-reliability">How to Configure Reliability</h2>
+<p>Configuration is handled via the <code>options</code> object (of type
+<code>RTCDataChannelInit</code>) passed as the second argument to the
+<code>RTCPeerConnection.createDataChannel()</code> method.</p>
+<p>Here is an example of how to create both types of channels:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> peerConnection <span class="op">=</span> <span class="kw">new</span> <span class="bu">RTCPeerConnection</span>()<span class="op">;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">// 1. Reliable and Ordered (Default TCP-like behavior)</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> reliableChannel <span class="op">=</span> peerConnection<span class="op">.</span><span class="fu">createDataChannel</span>(<span class="st">&quot;reliableData&quot;</span>)<span class="op">;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">// 2. Unreliable and Unordered (UDP-like behavior)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> unreliableChannel <span class="op">=</span> peerConnection<span class="op">.</span><span class="fu">createDataChannel</span>(<span class="st">&quot;unreliableData&quot;</span><span class="op">,</span> {</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">ordered</span><span class="op">:</span> <span class="kw">false</span><span class="op">,</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">maxRetransmits</span><span class="op">:</span> <span class="dv">0</span> <span class="co">// No retransmissions allowed</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span></code></pre></div>
+<h2 id="key-configuration-parameters">Key Configuration Parameters</h2>
+<p>To customize the reliability and ordering of packet delivery, you use
+three primary properties in the configuration object:</p>
+<ul>
+<li><strong><code>ordered</code></strong> (Boolean): Specifies whether
+the receiver must receive the packets in the exact order they were sent.
+Setting this to <code>false</code> allows packets to be processed as
+soon as they arrive, regardless of order. The default is
+<code>true</code>.</li>
+<li><strong><code>maxPacketLifeTime</code></strong> (Number): Specifies
+the maximum length of time, in milliseconds, that the browser will
+attempt to retransmit a failed packet. If this time is exceeded, the
+packet is discarded.</li>
+<li><strong><code>maxRetransmits</code></strong> (Number): Specifies the
+maximum number of times the browser will attempt to retransmit a failed
+packet before giving up.</li>
+</ul>
+<h2 id="configuration-rules-and-limitations">Configuration Rules and
+Limitations</h2>
+<p>When setting up custom reliability, keep the following rules in
+mind:</p>
+<ol type="1">
+<li><strong>Mutual Exclusion</strong>: You cannot specify both
+<code>maxPacketLifeTime</code> and <code>maxRetransmits</code> in the
+same configuration object. Attempting to set both will result in a
+syntax error or a failed channel creation.</li>
+<li><strong>Partially Reliable</strong>: If you set <code>ordered</code>
+to <code>true</code> but limit <code>maxRetransmits</code> or
+<code>maxPacketLifeTime</code>, the channel becomes partially reliable.
+Packets will be delivered in order, but some packets may be lost if they
+exceed the defined retransmission limits.</li>
+<li><strong>Fully Unreliable</strong>: To achieve a true UDP-like
+experience, set <code>ordered</code> to <code>false</code> and set
+either <code>maxRetransmits: 0</code> or a very low
+<code>maxPacketLifeTime</code>. This ensures data is sent with minimum
+overhead, never retransmitted, and processed immediately upon
+arrival.</li>
+</ol></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Causes of One-Way Audio and Video in WebRTC - webrtc</title>
+    <meta name="description" content="This article explores the primary technical reasons why users experience isolated one-way audio or video during WebRTC sessions. We will examine how network configurations, firewall restrictions, NAT traversal failures, media negotiation mismatches, and">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/causes-of-one-way-audio-and-video-in-web-rtc">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Causes of One-Way Audio and Video in WebRTC - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/causes-of-one-way-audio-and-video-in-web-rtc" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explores the primary technical reasons why users experience isolated one-way audio or video during WebRTC sessions. We will examine how network configurations, firewall restrictions, NAT traversal failures, media negotiation mismatches, and" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="causes-of-one-way-audio-and-video-in-webrtc">Causes of One-Way
+Audio and Video in WebRTC</h1>
+<p>This article explores the primary technical reasons why users
+experience isolated one-way audio or video during WebRTC sessions. We
+will examine how network configurations, firewall restrictions, NAT
+traversal failures, media negotiation mismatches, and browser permission
+policies contribute to this common streaming issue, providing clear
+explanations for each cause.</p>
+<h2 id="nat-traversal-and-ice-failures">NAT Traversal and ICE
+Failures</h2>
+<p>The most common culprit behind one-way media in WebRTC is a failure
+in the Interactive Connectivity Establishment (ICE) process,
+particularly when traversing symmetric NATs (Network Address
+Translators). WebRTC uses STUN and TURN servers to discover public IP
+addresses and establish direct peer-to-peer connections.</p>
+<p>If one peer is behind a strict symmetric NAT and no TURN (Traversal
+Using Relays around NAT) server is configured—or if the TURN server is
+blocked—the connection may only establish partially. In this scenario,
+one peer can successfully send packets to the other, but the return path
+is blocked, resulting in unidirectional media flow.</p>
+<h2 id="asymmetric-firewall-policies">Asymmetric Firewall Policies</h2>
+<p>Firewalls and security appliances often employ deep packet inspection
+or strict stateful rules that affect incoming and outgoing UDP traffic
+differently. A local firewall might allow outgoing UDP traffic on random
+ports (enabling one peer to send media) but block incoming UDP packets
+on those same ports. Because WebRTC media streams (RTP/RTCP) travel over
+dynamic UDP port ranges, any asymmetry in firewall rules will
+immediately result in one-way audio or video.</p>
+<h2 id="sdp-direction-attribute-misconfigurations">SDP Direction
+Attribute Misconfigurations</h2>
+<p>During the WebRTC signaling phase, peers exchange Session Description
+Protocol (SDP) offers and answers to negotiate media capabilities. SDP
+contains specific direction attributes:</p>
+<ul>
+<li><code>a=sendrecv</code> (send and receive)</li>
+<li><code>a=sendonly</code> (send only)</li>
+<li><code>a=recvonly</code> (receive only)</li>
+<li><code>a=inactive</code> (neither)</li>
+</ul>
+<p>If the application logic misconfigures these attributes during the
+offer/answer exchange, or if there is a parsing error in the signaling
+state machine, one peer may transition to a state where it only
+transmits media while the other peer transitions to a state where it
+only listens.</p>
+<h2 id="dtls-srtp-handshake-failures">DTLS-SRTP Handshake Failures</h2>
+<p>WebRTC encrypts all media streams using Datagram Transport Layer
+Security (DTLS) and Secure Real-time Transport Protocol (SRTP). After
+the ICE path is established, the peers must complete a DTLS handshake to
+exchange encryption keys.</p>
+<p>If the DTLS handshake fails in one direction—often due to fragmented
+packets being dropped by intermediary routers or firewalls—one peer will
+fail to decrypt the incoming SRTP packets. The receiving peer will
+discard these packets as unreadable, manifesting to the user as a
+complete loss of incoming audio or video while their outgoing stream
+remains functional.</p>
+<h2 id="browser-media-permissions-and-hardware-state">Browser Media
+Permissions and Hardware State</h2>
+<p>Sometimes the issue is not network-related but stems from the client
+device or browser API environment. If a user revokes microphone or
+camera permissions mid-call, or if the browser's autoplay restrictions
+block incoming media, one-way communication occurs. Additionally, if a
+device's hardware driver fails to initialize the microphone or camera,
+the local browser cannot capture input to send, while still being
+perfectly capable of rendering the incoming stream from the remote
+peer.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

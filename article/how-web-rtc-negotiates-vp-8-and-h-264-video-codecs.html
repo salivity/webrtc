@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How WebRTC Negotiates VP8 and H.264 Video Codecs - webrtc</title>
+    <meta name="description" content="This article explains how WebRTC automatically negotiates video codecs, specifically VP8 and H.264, between two connecting peers. It covers the underlying Session Description Protocol (SDP) offer/answer exchange, how codec preferences are ordered, and ho">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/how-web-rtc-negotiates-vp-8-and-h-264-video-codecs">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How WebRTC Negotiates VP8 and H.264 Video Codecs - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/how-web-rtc-negotiates-vp-8-and-h-264-video-codecs" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explains how WebRTC automatically negotiates video codecs, specifically VP8 and H.264, between two connecting peers. It covers the underlying Session Description Protocol (SDP) offer/answer exchange, how codec preferences are ordered, and ho" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-webrtc-negotiates-vp8-and-h264-video-codecs">How WebRTC
+Negotiates VP8 and H.264 Video Codecs</h1>
+<p>This article explains how WebRTC automatically negotiates video
+codecs, specifically VP8 and H.264, between two connecting peers. It
+covers the underlying Session Description Protocol (SDP) offer/answer
+exchange, how codec preferences are ordered, and how specific parameters
+like H.264 profiles are matched to ensure successful video
+transmission.</p>
+<h2 id="the-sdp-offeranswer-model">The SDP Offer/Answer Model</h2>
+<p>WebRTC utilizes the Session Description Protocol (SDP) within an
+offer/answer workflow to establish media sessions. When a connection is
+initiated, the calling peer (the offerer) generates an SDP "offer." This
+text-based metadata lists the peer's media capabilities, including
+supported audio and video codecs, network candidates, and security
+parameters.</p>
+<p>The receiving peer (the answerer) parses this offer, compares the
+capabilities against its own, and returns an SDP "answer." This exchange
+determines the exact codec and configuration that both peers will use to
+compress and decompress the video stream.</p>
+<h2 id="codec-prioritization-in-the-sdp">Codec Prioritization in the
+SDP</h2>
+<p>In an SDP offer, video codecs are listed in the media description
+section (<code>m=video</code>). Each codec is assigned a payload type
+number and defined using format parameters (<code>a=rtpmap</code> and
+<code>a=fmtp</code>).</p>
+<p>The order of the payload types in the <code>m=video</code> line
+indicates the sender’s preference. For example, if a browser prefers VP8
+over H.264, it will list the payload type for VP8 first:</p>
+<pre class="text"><code>m=video 9 UDP/TLS/RTP/SAVPF 96 97
+a=rtpmap:96 VP8/90000
+a=rtpmap:97 H264/90000</code></pre>
+<p>When the answering peer receives this list, it scans the codecs from
+left to right (highest preference to lowest). It matches the offered
+codecs against its own local capabilities and selects the first mutually
+supported codec to include in its SDP answer.</p>
+<h2 id="h264-profile-matching">H.264 Profile Matching</h2>
+<p>Negotiating H.264 is more complex than VP8 due to the existence of
+various "profiles" and "levels." Profiles define the feature set used to
+compress the video (e.g., Constrained Baseline Profile for
+low-latency/low-power devices, High Profile for better quality), while
+levels dictate the maximum resolution and bitrate.</p>
+<p>During negotiation, H.264 codecs include a
+<code>profile-level-id</code> parameter in the SDP. For negotiation to
+succeed:</p>
+<ul>
+<li>Both peers must support the exact same H.264 profile.</li>
+<li>If Peer A offers H.264 High Profile, but Peer B only supports
+Constrained Baseline Profile, they cannot agree on that specific H.264
+configuration.</li>
+<li>If no matching H.264 profiles are found, the negotiation engine will
+fall back to VP8 (which has a singular, universally supported format in
+WebRTC).</li>
+</ul>
+<h2 id="asymmetric-vs-symmetric-negotiation">Asymmetric vs. Symmetric
+Negotiation</h2>
+<p>By default, WebRTC implementations strive for symmetric codec
+negotiation, meaning both peers use the same codec to send and receive
+video (e.g., both send VP8). This simplifies resource allocation and
+hardware acceleration.</p>
+<p>However, the WebRTC standard technically allows for asymmetric
+negotiation, where Peer A sends VP8 and receives H.264, while Peer B
+does the opposite. If the SDP answer maintains different preferences for
+sending and receiving, the WebRTC media pipeline will automatically
+configure separate encoders and decoders on each peer to match the
+negotiated parameters.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC vs RTMP vs HLS Technical Comparison - webrtc</title>
+    <meta name="description" content="This article provides a direct technical comparison between WebRTC and older streaming protocols such as RTMP and HLS. It explores the architectural differences, transport layer behaviors, connection methodologies, and scaling capabilities that allow Web">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/web-rtc-vs-rtmp-vs-hls-technical-comparison">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="WebRTC vs RTMP vs HLS Technical Comparison - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/web-rtc-vs-rtmp-vs-hls-technical-comparison" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article provides a direct technical comparison between WebRTC and older streaming protocols such as RTMP and HLS. It explores the architectural differences, transport layer behaviors, connection methodologies, and scaling capabilities that allow Web" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="webrtc-vs-rtmp-vs-hls-technical-comparison">WebRTC vs RTMP vs
+HLS Technical Comparison</h1>
+<p>This article provides a direct technical comparison between WebRTC
+and older streaming protocols such as RTMP and HLS. It explores the
+architectural differences, transport layer behaviors, connection
+methodologies, and scaling capabilities that allow WebRTC to achieve
+sub-second latency compared to the higher latency of traditional TCP-
+and HTTP-based streaming technologies.</p>
+<h2 id="latency-profiles">Latency Profiles</h2>
+<p>The most critical distinction between WebRTC, RTMP, and HLS is
+latency. WebRTC is designed for real-time interaction, while RTMP and
+HLS prioritize reliability and scalability.</p>
+<ul>
+<li><strong>WebRTC (Web Real-Time Communication):</strong> Achieves
+sub-second latency, typically between 100 to 500 milliseconds. It is
+designed for two-way, interactive communication.</li>
+<li><strong>RTMP (Real-Time Messaging Protocol):</strong> Typically
+yields latency of 2 to 5 seconds. Originally designed for the Flash
+Player, it is now primarily used for first-mile ingestion.</li>
+<li><strong>HLS (HTTP Live Streaming):</strong> Standard HLS results in
+5 to 30 seconds of latency. Low-Latency HLS (LL-HLS) can reduce this to
+1.2 to 3 seconds, but it still cannot match WebRTC's real-time
+capabilities.</li>
+</ul>
+<h2 id="transport-layer-protocols">Transport Layer Protocols</h2>
+<p>The underlying transport layer directly impacts how these protocols
+handle packet loss, network congestion, and speed.</p>
+<ul>
+<li><strong>WebRTC:</strong> Operates primarily over UDP (User Datagram
+Protocol) using SRTP (Secure Real-time Transport Protocol). UDP does not
+require a connection handshake for every packet and does not guarantee
+packet delivery or ordering. If a packet is lost, WebRTC drops it or
+uses error correction (like FEC or NACK) to maintain real-time playback
+rather than pausing to retransmit.</li>
+<li><strong>RTMP:</strong> Relies on TCP (Transmission Control
+Protocol). TCP guarantees that every packet is delivered in order. If a
+packet is lost, the stream halts (buffers) until the missing packet is
+retransmitted and received, which introduces latency.</li>
+<li><strong>HLS:</strong> Also operates over TCP because it runs over
+standard HTTP (HTTP/1.1, HTTP/2, or HTTP/3). It inherits TCP’s reliable
+delivery mechanism, prioritizing video quality and seamless playback
+over immediate delivery.</li>
+</ul>
+<h2 id="architecture-and-media-delivery">Architecture and Media
+Delivery</h2>
+<p>The architectural approach to packaging and delivering media streams
+differs fundamentally across these three protocols.</p>
+<h3 id="webrtc-session-based-packet-streaming">WebRTC: Session-Based,
+Packet-Streaming</h3>
+<p>WebRTC establishes direct peer-to-peer (P2P) connections using a
+framework of auxiliary protocols:</p>
+<ul>
+<li><strong>ICE (Interactive Connectivity Establishment):</strong> Finds
+the best path to connect peers.</li>
+<li><strong>STUN/TURN:</strong> Servers used to discover public IP
+addresses and relay media through firewalls if a direct connection is
+impossible.</li>
+<li><strong>Signaling:</strong> A separate, developer-defined channel
+(often WebSockets) used to exchange SDP (Session Description Protocol)
+offers and answers to agree on codecs and connection details.</li>
+</ul>
+<p>For one-to-many streaming, WebRTC bypasses pure P2P by using media
+servers—specifically Selective Forwarding Units (SFUs) or Multipoint
+Control Units (MCUs)—to route traffic efficiently without duplicating
+streams on the client side.</p>
+<h3 id="rtmp-continuous-client-server-connection">RTMP: Continuous
+Client-Server Connection</h3>
+<p>RTMP establishes a persistent, stateful TCP connection between the
+client (usually encoder software like OBS) and a media server.</p>
+<ul>
+<li>It splits video and audio into chunks and transmits them dynamically
+over the established connection.</li>
+<li>Because modern web browsers no longer support the Flash plugin, RTMP
+can no longer deliver video directly to end-users. Today, it is used
+almost exclusively for "ingest"—sending video from a creator's encoder
+to a streaming platform's server, where it is transcoded into HLS or
+WebRTC for distribution.</li>
+</ul>
+<h3 id="hls-segmented-http-downloads">HLS: Segmented HTTP Downloads</h3>
+<p>HLS does not stream continuous packets. Instead, it functions via web
+server file delivery.</p>
+<ul>
+<li>The media server chops the incoming video stream into short segments
+(typically 2 to 10 seconds long) formatted as fragmented MP4 (.m4s) or
+MPEG-2 TS (.ts) files.</li>
+<li>The server creates a <code>.m3u8</code> index file (playlist) that
+lists these segments.</li>
+<li>The player client continuously fetches the updated playlist over
+standard HTTP and downloads the media segments sequentially.</li>
+</ul>
+<h2 id="protocol-comparison-table">Protocol Comparison Table</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Technical Feature</th>
+<th style="text-align: left;">WebRTC</th>
+<th style="text-align: left;">RTMP</th>
+<th style="text-align: left;">HLS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Primary Transport</strong></td>
+<td style="text-align: left;">UDP (via SRTP)</td>
+<td style="text-align: left;">TCP</td>
+<td style="text-align: left;">TCP (HTTP/1.1, HTTP/2, HTTP/3)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Target Latency</strong></td>
+<td style="text-align: left;">&lt; 500 ms</td>
+<td style="text-align: left;">2 – 5 seconds</td>
+<td style="text-align: left;">2 – 30 seconds (1.2 - 3s for LL-HLS)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Browser Support</strong></td>
+<td style="text-align: left;">Native (No plugins required)</td>
+<td style="text-align: left;">None (Requires transcoding)</td>
+<td style="text-align: left;">Native on Safari/iOS; supported via MSE
+libraries on others</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Playback Scaling</strong></td>
+<td style="text-align: left;">Difficult (Requires SFU/MCU
+infrastructure)</td>
+<td style="text-align: left;">Poor (Limits on concurrent TCP
+connections)</td>
+<td style="text-align: left;">Extremely high (Leverages standard
+CDNs)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Encryption</strong></td>
+<td style="text-align: left;">Mandatory (DTLS/SRTP)</td>
+<td style="text-align: left;">Optional (RTMPS)</td>
+<td style="text-align: left;">Optional (HTTPS, DRM support)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Primary Use Case</strong></td>
+<td style="text-align: left;">Video conferencing, sub-second interactive
+streams</td>
+<td style="text-align: left;">Stream ingestion (e.g., OBS to
+YouTube/Twitch)</td>
+<td style="text-align: left;">Mass-audience broadcasting,
+video-on-demand (VOD)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="scalability-and-infrastructure-cost">Scalability and
+Infrastructure Cost</h2>
+<p>The technical trade-off for WebRTC’s ultra-low latency is the
+complexity and cost of scaling.</p>
+<ul>
+<li><strong>HLS Scalability:</strong> Because HLS consists of standard
+HTTP file downloads, it is highly cacheable. Traditional Content
+Delivery Networks (CDNs) can cache and distribute HLS files to millions
+of concurrent viewers globally with minimal load on the origin server.
+This makes HLS cheap and highly scalable.</li>
+<li><strong>RTMP Scalability:</strong> RTMP requires dedicated media
+servers to maintain active TCP sessions with every connected client.
+This consumes significant server memory and CPU, making it expensive to
+scale for massive audiences.</li>
+<li><strong>WebRTC Scalability:</strong> WebRTC requires stateful,
+real-time UDP connections. To scale WebRTC beyond a few peers, media
+servers (SFUs) must receive, duplicate, and route individual media
+packets to every viewer in real time. This requires substantial CPU
+power and bandwidth, resulting in significantly higher infrastructure
+costs per viewer than HLS.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

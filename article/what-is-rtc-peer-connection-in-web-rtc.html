@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What is RTCPeerConnection in WebRTC? - webrtc</title>
+    <meta name="description" content="The RTCPeerConnection interface is the core component of the WebRTC (Web Real-Time Communication) API, acting as the primary hub for establishing direct, peer-to-peer connections between web browsers. This article explains the specific roles of RTCPeerCo">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/what-is-rtc-peer-connection-in-web-rtc">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="What is RTCPeerConnection in WebRTC? - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/what-is-rtc-peer-connection-in-web-rtc" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="The RTCPeerConnection interface is the core component of the WebRTC (Web Real-Time Communication) API, acting as the primary hub for establishing direct, peer-to-peer connections between web browsers. This article explains the specific roles of RTCPeerCo" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="what-is-rtcpeerconnection-in-webrtc">What is RTCPeerConnection
+in WebRTC?</h1>
+<p>The <code>RTCPeerConnection</code> interface is the core component of
+the WebRTC (Web Real-Time Communication) API, acting as the primary hub
+for establishing direct, peer-to-peer connections between web browsers.
+This article explains the specific roles of
+<code>RTCPeerConnection</code>, including how it manages media and data
+streaming, handles network traversal through firewalls, and secures
+communication channels without requiring third-party plugins.</p>
+<h2 id="connection-management-and-signaling">Connection Management and
+Signaling</h2>
+<p>At its core, <code>RTCPeerConnection</code> coordinates the lifecycle
+of a peer-to-peer connection. Because direct connections cannot be
+established instantly, peers must first exchange configuration data—a
+process known as signaling.</p>
+<p>While WebRTC does not specify a signaling protocol,
+<code>RTCPeerConnection</code> provides the framework to handle this
+exchange using Session Description Protocol (SDP). It generates
+connection "offers" and "answers" which contain details about media
+codecs, resolutions, and session settings. Once these SDPs are exchanged
+and set via <code>setLocalDescription()</code> and
+<code>setRemoteDescription()</code>, the interface establishes the media
+pipeline.</p>
+<h2 id="nat-traversal-and-ice">NAT Traversal and ICE</h2>
+<p>Direct communication between browsers is often blocked by firewalls
+and Network Address Translators (NATs). <code>RTCPeerConnection</code>
+solves this using the Interactive Connectivity Establishment (ICE)
+framework.</p>
+<p>During connection setup, the interface automatically gathers "ICE
+candidates"—potential network pathways (IP addresses and ports) through
+which the peer can be reached. It utilizes STUN (Session Traversal
+Utilities for NAT) and TURN (Traversal Using Relays around NAT) servers
+to discover these candidates. <code>RTCPeerConnection</code> then tests
+these pathways to determine and maintain the most efficient,
+lowest-latency path for data transmission.</p>
+<h2 id="media-and-data-transmission">Media and Data Transmission</h2>
+<p>Once the network path is established, <code>RTCPeerConnection</code>
+manages the actual transmission of real-time streams.</p>
+<ul>
+<li><strong>Audio and Video:</strong> It handles the encoding, decoding,
+and synchronization of audio and video tracks. It dynamically adjusts
+quality based on network bandwidth and congestion.</li>
+<li><strong>Data Channels:</strong> Through the
+<code>createDataChannel()</code> method, <code>RTCPeerConnection</code>
+allows developers to open bidirectional, low-latency channels for
+sending arbitrary text or binary data directly between peers, ideal for
+gaming, file sharing, and real-time chat.</li>
+</ul>
+<h2 id="built-in-encryption-and-security">Built-In Encryption and
+Security</h2>
+<p>Security is integrated directly into the
+<code>RTCPeerConnection</code> interface. All media and data transmitted
+through the connection are mandatorily encrypted.</p>
+<p>The interface utilizes Datagram Transport Layer Security (DTLS) to
+secure data channels and negotiate cryptographic keys, while the Secure
+Real-time Transport Protocol (SRTP) encrypts audio and video streams.
+This ensures that third parties cannot intercept or eavesdrop on the
+peer-to-peer communication.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

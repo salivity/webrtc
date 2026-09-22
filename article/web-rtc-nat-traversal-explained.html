@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC NAT Traversal Explained - webrtc</title>
+    <meta name="description" content="Real-time communication on the web requires direct peer-to-peer connections, but Network Address Translation (NAT) often blocks these direct paths by hiding devices behind private IP addresses. This article explains how WebRTC successfully navigates and">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/web-rtc-nat-traversal-explained">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="WebRTC NAT Traversal Explained - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/web-rtc-nat-traversal-explained" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Real-time communication on the web requires direct peer-to-peer connections, but Network Address Translation (NAT) often blocks these direct paths by hiding devices behind private IP addresses. This article explains how WebRTC successfully navigates and" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="webrtc-nat-traversal-explained">WebRTC NAT Traversal
+Explained</h1>
+<p>Real-time communication on the web requires direct peer-to-peer
+connections, but Network Address Translation (NAT) often blocks these
+direct paths by hiding devices behind private IP addresses. This article
+explains how WebRTC successfully navigates and bypasses these network
+barriers using Interactive Connectivity Establishment (ICE), Session
+Traversal Utilities for NAT (STUN), and Traversal Using Relays around
+NAT (TURN) to establish secure, low-latency connections.</p>
+<h2 id="the-nat-obstacle-in-peer-to-peer-communication">The NAT Obstacle
+in Peer-to-Peer Communication</h2>
+<p>Most devices on the internet do not have a unique public IP address.
+Instead, they sit behind routers utilizing NAT, which maps multiple
+private IP addresses within a local network to a single public IP
+address. While NAT conserves IP addresses and secures local networks, it
+prevents external peers from initiating direct connections to internal
+devices because the external peer does not know the internal device's
+private IP or the port mapping on the router.</p>
+<p>To bypass this barrier, WebRTC uses a framework called ICE to
+discover the best possible connection path between two peers.</p>
+<h2 id="interactive-connectivity-establishment-ice">Interactive
+Connectivity Establishment (ICE)</h2>
+<p>ICE is a framework used by WebRTC to find all possible ways for two
+peers to connect. These potential connection paths are called "ICE
+candidates." ICE systematically gathers, exchanges, and tests these
+candidates to find the most efficient routing path.</p>
+<p>An ICE candidate contains an IP address, a port, and a transport
+protocol (usually UDP). WebRTC gathers three types of candidates:</p>
+<ul>
+<li><strong>Host Candidates:</strong> The local IP address and port of
+the device's physical or virtual network interface.</li>
+<li><strong>Server Reflexive (STUN) Candidates:</strong> The public IP
+address and port allocated by the NAT router, discovered via a STUN
+server.</li>
+<li><strong>Relayed (TURN) Candidates:</strong> The IP address and port
+of a relay server, used when direct peer-to-peer connection is
+impossible.</li>
+</ul>
+<h2 id="step-1-discovering-public-ips-with-stun">Step 1: Discovering
+Public IPs with STUN</h2>
+<p>The first step in bypassing NAT is finding out how the outside world
+sees the device. WebRTC uses STUN servers for this purpose.</p>
+<p>A STUN server is a lightweight, public-facing server. The WebRTC
+client sends a simple request to the STUN server. The server inspects
+the incoming packet to see which public IP address and port the request
+came from, and sends this information back to the client.</p>
+<p>Once the client receives its public IP and port (the Server Reflexive
+candidate), it shares this information with the remote peer via a
+signaling channel. If both routers allow direct incoming traffic on
+those ports, WebRTC establishes a direct, peer-to-peer connection. This
+works for the vast majority of consumer routers.</p>
+<h2 id="step-2-bypassing-restrictive-nats-with-turn">Step 2: Bypassing
+Restrictive NATs with TURN</h2>
+<p>Some network configurations, such as corporate firewalls or Symmetric
+NATs, block STUN-assisted direct connections. In a Symmetric NAT setup,
+the router changes the external port mapping for every unique
+destination the internal device tries to contact. As a result, the port
+mapping discovered via the STUN server will not work when the peer tries
+to connect to it.</p>
+<p>When direct connection fails, WebRTC falls back to TURN. A TURN
+server acts as a media relay. Both peers connect directly to the TURN
+server, which then forwards the audio, video, and data streams between
+them.</p>
+<p>Because both peers only make outbound connections to the public TURN
+server, this method bypasses almost all firewall and NAT restrictions.
+Although TURN requires significant server bandwidth and introduces
+slight latency, it guarantees that WebRTC connections succeed even on
+highly restrictive networks.</p>
+<h2 id="the-candidate-nomination-process">The Candidate Nomination
+Process</h2>
+<p>Once both peers have gathered and exchanged their ICE candidates,
+they begin connectivity checks. They test the candidate pairs in order
+of priority (Host candidates first for lowest latency, then STUN
+candidates, and finally TURN candidates as a fallback).</p>
+<p>The moment a valid, stable path is verified and selected, WebRTC
+begins transmitting encrypted media and data over that path, ensuring a
+seamless real-time communication experience.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

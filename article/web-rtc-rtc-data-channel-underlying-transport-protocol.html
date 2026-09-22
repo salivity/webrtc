@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC RTCDataChannel Underlying Transport Protocol - webrtc</title>
+    <meta name="description" content="This article explores the specific network protocols that power WebRTC’s RTCDataChannel, the technology responsible for peer-to-peer data exchange in web browsers. Readers will learn about the Stream Control Transmission Protocol (SCTP), how it operate">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/web-rtc-rtc-data-channel-underlying-transport-protocol">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="WebRTC RTCDataChannel Underlying Transport Protocol - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/web-rtc-rtc-data-channel-underlying-transport-protocol" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explores the specific network protocols that power WebRTC’s RTCDataChannel, the technology responsible for peer-to-peer data exchange in web browsers. Readers will learn about the Stream Control Transmission Protocol (SCTP), how it operate" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="webrtc-rtcdatachannel-underlying-transport-protocol">WebRTC
+RTCDataChannel Underlying Transport Protocol</h1>
+<p>This article explores the specific network protocols that power
+WebRTC’s <code>RTCDataChannel</code>, the technology responsible for
+peer-to-peer data exchange in web browsers. Readers will learn about the
+Stream Control Transmission Protocol (SCTP), how it operates on top of
+secure layers, and why this specific protocol stack was chosen to enable
+fast, secure, and customizable data transmission.</p>
+<h2 id="the-underlying-protocol-sctp">The Underlying Protocol: SCTP</h2>
+<p>The underlying transport protocol that strictly powers the WebRTC
+<code>RTCDataChannel</code> is the <strong>Stream Control Transmission
+Protocol (SCTP)</strong>.</p>
+<p>While WebRTC uses the Real-time Transport Protocol (RTP) to transmit
+audio and video, it relies on SCTP to send arbitrary data—such as text,
+files, and database state updates—directly between browsers.</p>
+<h2 id="the-webrtc-data-protocol-stack">The WebRTC Data Protocol
+Stack</h2>
+<p>SCTP does not run directly over the IP layer in WebRTC. To navigate
+firewalls, bypass network address translators (NATs), and ensure strict
+security, WebRTC encapsulates SCTP within other protocols.</p>
+<p>The complete transport stack for <code>RTCDataChannel</code> is
+structured as follows:</p>
+<ol type="1">
+<li><strong>SCTP (Application Layer Data):</strong> Handles congestion
+control, reliability, and multiplexing of data channels.</li>
+<li><strong>DTLS (Datagram Transport Layer Security):</strong> Encrypts
+the SCTP traffic, ensuring that all data sent through the channel is
+secure and private.</li>
+<li><strong>UDP (User Datagram Protocol):</strong> Serves as the base
+transport layer. UDP allows for low-latency transmission and works
+efficiently with NAT traversal techniques like ICE, STUN, and TURN.</li>
+</ol>
+<p>By running <strong>SCTP over DTLS over UDP</strong>, WebRTC achieves
+a highly secure, peer-to-peer connection that can bypass complex network
+environments while maintaining high throughput.</p>
+<h2 id="why-sctp-was-chosen-for-rtcdatachannel">Why SCTP Was Chosen for
+RTCDataChannel</h2>
+<p>SCTP combines the best features of both TCP and UDP, making it
+uniquely suited for real-time web applications. By utilizing SCTP,
+<code>RTCDataChannel</code> offers features that traditional web
+transport protocols cannot easily replicate:</p>
+<ul>
+<li><strong>Flexible Reliability:</strong> Developers can configure the
+data channel to be fully reliable (like TCP, where packet delivery is
+guaranteed) or completely unreliable (like UDP, where lost packets are
+ignored).</li>
+<li><strong>Delivery Ordering:</strong> SCTP supports both ordered
+delivery (packets arrive in the exact sequence they were sent) and
+unordered delivery (packets are processed as soon as they arrive,
+eliminating head-of-line blocking).</li>
+<li><strong>Congestion Control:</strong> SCTP features built-in
+congestion avoidance mechanisms to prevent network overload, ensuring
+fair bandwidth sharing with other internet traffic.</li>
+<li><strong>Multi-Streaming:</strong> A single SCTP association can
+support multiple independent streams (individual
+<code>RTCDataChannel</code> instances) simultaneously, preventing a
+delay in one channel from blocking data in another.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>When Does WebRTC Use a TURN Server? - webrtc</title>
+    <meta name="description" content="WebRTC is designed for peer-to-peer real-time communication, but direct connections often fail due to restrictive network barriers. This article explains the specific network circumstances—such as symmetric NATs, strict corporate firewalls, and blocked">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/when-does-web-rtc-use-a-turn-server">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="When Does WebRTC Use a TURN Server? - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/when-does-web-rtc-use-a-turn-server" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="WebRTC is designed for peer-to-peer real-time communication, but direct connections often fail due to restrictive network barriers. This article explains the specific network circumstances—such as symmetric NATs, strict corporate firewalls, and blocked" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="when-does-webrtc-use-a-turn-server">When Does WebRTC Use a TURN
+Server?</h1>
+<p>WebRTC is designed for peer-to-peer real-time communication, but
+direct connections often fail due to restrictive network barriers. This
+article explains the specific network circumstances—such as symmetric
+NATs, strict corporate firewalls, and blocked UDP ports—that force
+WebRTC to fall back to a TURN (Traversal Using Relays around NAT) server
+to successfully route media and data between peers.</p>
+<p>To establish a connection, WebRTC uses the ICE (Interactive
+Connectivity Establishment) protocol. ICE first attempts to connect
+peers directly. If a direct connection is impossible, it falls back to a
+TURN server, which acts as a media relay. The following specific network
+conditions trigger this fallback:</p>
+<h3 id="1-symmetric-nat-on-both-ends">1. Symmetric NAT on Both Ends</h3>
+<p>Network Address Translators (NATs) allow multiple devices on a
+private network to share a single public IP address. Under a "Symmetric"
+NAT, the router maps an internal IP and port to a unique external IP and
+port <em>for each specific destination</em>.</p>
+<p>If Peer A and Peer B are both behind Symmetric NATs, a STUN (Session
+Traversal Utilities for NAT) server cannot predict the port mappings
+required for a direct connection. Because neither peer can "hole-punch"
+through the other's NAT, WebRTC must route all traffic through a TURN
+server.</p>
+<h3 id="2-strict-firewalls-and-blocked-udp-ports">2. Strict Firewalls
+and Blocked UDP Ports</h3>
+<p>WebRTC prefers using UDP (User Datagram Protocol) for its low-latency
+media delivery. However, many secured networks—such as those in
+enterprise offices, schools, and hospitals—block all outbound UDP
+traffic on non-standard ports to protect their internal networks.</p>
+<p>When a firewall blocks UDP traffic, WebRTC cannot establish a direct
+P2P connection. A TURN server resolves this by accepting traffic over
+TCP, or by wrapping the data in TLS (TURNS) on port 443, which mimics
+secure web traffic and easily bypasses most firewall restrictions.</p>
+<h3 id="3-corporate-proxies-and-deep-packet-inspection-dpi">3. Corporate
+Proxies and Deep Packet Inspection (DPI)</h3>
+<p>Many corporate environments force all outbound traffic to pass
+through an explicit HTTP or SOCKS5 proxy. Direct WebRTC peer-to-peer
+connections cannot negotiate these proxies. Furthermore, firewalls
+equipped with Deep Packet Inspection (DPI) can identify and block
+standard WebRTC media streams.</p>
+<p>In these environments, a TURN server operating over TLS (port 443) is
+required. The encrypted WebRTC traffic looks like standard HTTPS web
+traffic to the proxy and DPI firewall, allowing the connection to
+succeed.</p>
+<h3 id="4-carrier-grade-nat-cgnat">4. Carrier-Grade NAT (CGNAT)</h3>
+<p>Mobile network operators and some residential ISPs utilize
+Carrier-Grade NAT (CGNAT) to share a limited pool of public IPv4
+addresses among thousands of users. While STUN can sometimes
+successfully traverse CGNAT, the combination of CGNAT with strict
+device-level firewalls or mobile hotspot configurations frequently
+prevents direct P2P connections, requiring a TURN server to bridge the
+gap.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

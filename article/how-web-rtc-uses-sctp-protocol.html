@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How WebRTC Uses SCTP Protocol - webrtc</title>
+    <meta name="description" content="This article explores how the Stream Control Transmission Protocol (SCTP) is utilized internally within WebRTC to power non-media data transfers. It explains the integration of SCTP within the WebRTC protocol stack, its encapsulation over DTLS and UDP, a">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/how-web-rtc-uses-sctp-protocol">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How WebRTC Uses SCTP Protocol - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/how-web-rtc-uses-sctp-protocol" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explores how the Stream Control Transmission Protocol (SCTP) is utilized internally within WebRTC to power non-media data transfers. It explains the integration of SCTP within the WebRTC protocol stack, its encapsulation over DTLS and UDP, a" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-webrtc-uses-sctp-protocol">How WebRTC Uses SCTP
+Protocol</h1>
+<p>This article explores how the Stream Control Transmission Protocol
+(SCTP) is utilized internally within WebRTC to power non-media data
+transfers. It explains the integration of SCTP within the WebRTC
+protocol stack, its encapsulation over DTLS and UDP, and how it enables
+the highly flexible and configurable features of WebRTC Data
+Channels.</p>
+<h2 id="the-webrtc-protocol-stack-and-sctp-encapsulation">The WebRTC
+Protocol Stack and SCTP Encapsulation</h2>
+<p>In WebRTC, real-time media (audio and video) is transmitted using the
+Secure Real-time Transport Protocol (SRTP). However, arbitrary
+application data—such as chat messages, game states, or file
+transfers—is handled by the <code>RTCDataChannel</code> API, which
+relies entirely on SCTP.</p>
+<p>SCTP does not run directly over the IP layer in WebRTC. Instead, to
+navigate residential firewalls, traverse symmetric NATs, and ensure
+secure transmission, it is encapsulated within other protocols:</p>
+<ol type="1">
+<li><strong>SCTP</strong> sits at the top of this sub-stack, handling
+connection multiplexing, reliability, and congestion control.</li>
+<li><strong>DTLS (Datagram Transport Layer Security)</strong> encrypts
+the SCTP traffic, securing the data channel.</li>
+<li><strong>UDP (User Datagram Protocol)</strong> encapsulates the DTLS
+packets, allowing the traffic to easily pass through NATs and firewalls
+using ICE (Interactive Connectivity Establishment) candidates.</li>
+</ol>
+<p>This encapsulation stack is represented as: <strong>SCTP over DTLS
+over UDP</strong>.</p>
+<h2 id="key-functions-of-sctp-in-webrtc">Key Functions of SCTP in
+WebRTC</h2>
+<h3 id="1-powering-rtcdatachannel">1. Powering RTCDataChannel</h3>
+<p>SCTP provides the transport layer engine for the
+<code>RTCDataChannel</code>. While TCP is strictly reliable and ordered,
+and UDP is strictly unreliable and unordered, SCTP combines the
+capabilities of both. It allows developers to customize the delivery
+properties of each individual data channel.</p>
+<h3 id="2-flexible-reliability-models">2. Flexible Reliability
+Models</h3>
+<p>SCTP allows WebRTC to support three distinct reliability modes on a
+per-channel basis:</p>
+<ul>
+<li><strong>Fully Reliable:</strong> Guarantees that all messages are
+delivered in the correct order, mimicking TCP behavior. This is ideal
+for file transfers or text chat.</li>
+<li><strong>Partially Reliable:</strong> Attempts to deliver messages
+but gives up after a specified number of retransmissions or after a
+certain time budget expires. This is ideal for real-time multiplayer
+gaming where old data quickly becomes obsolete.</li>
+<li><strong>Unreliable:</strong> Sends messages with no guarantee of
+delivery or ordering, mimicking UDP behavior. This is ideal for
+high-frequency, disposable sensor or telemetry updates.</li>
+</ul>
+<h3 id="3-multi-streaming-and-avoiding-head-of-line-blocking">3.
+Multi-streaming and Avoiding Head-of-Line Blocking</h3>
+<p>A single SCTP association (connection) can contain multiple
+independent unidirectional or bidirectional streams. In TCP, if a single
+packet is lost, the entire connection stalls until that packet is
+retransmitted (Head-of-Line blocking). SCTP avoids this by isolating
+streams; a lost packet on Stream A does not block the delivery of
+packets on Stream B.</p>
+<h3 id="4-message-oriented-delivery">4. Message-Oriented Delivery</h3>
+<p>Unlike TCP, which is a stream-oriented protocol that sends a
+continuous flow of bytes, SCTP is message-oriented. It preserves message
+boundaries. When a sender transmits a message of a specific size, the
+receiver gets that exact same message block, simplifying
+application-level parsing.</p>
+<h3 id="5-congestion-and-flow-control">5. Congestion and Flow
+Control</h3>
+<p>SCTP includes built-in congestion control mechanisms similar to TCP.
+It monitors network capacity, detects congestion, and adjusts the
+transmission rate dynamically to prevent network overload, ensuring fair
+bandwidth sharing with other network traffic.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

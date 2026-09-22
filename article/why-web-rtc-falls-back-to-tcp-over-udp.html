@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why WebRTC Falls Back to TCP Over UDP - webrtc</title>
+    <meta name="description" content="While WebRTC is designed to prioritize UDP for real-time, low-latency media streaming, certain network restrictions prevent UDP packets from reaching their destination. In these restrictive environments, WebRTC's Interactive Connectivity Establishment (I">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/why-web-rtc-falls-back-to-tcp-over-udp">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Why WebRTC Falls Back to TCP Over UDP - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/why-web-rtc-falls-back-to-tcp-over-udp" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="While WebRTC is designed to prioritize UDP for real-time, low-latency media streaming, certain network restrictions prevent UDP packets from reaching their destination. In these restrictive environments, WebRTC's Interactive Connectivity Establishment (I" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="why-webrtc-falls-back-to-tcp-over-udp">Why WebRTC Falls Back to
+TCP Over UDP</h1>
+<p>While WebRTC is designed to prioritize UDP for real-time, low-latency
+media streaming, certain network restrictions prevent UDP packets from
+reaching their destination. In these restrictive environments, WebRTC's
+Interactive Connectivity Establishment (ICE) framework must fall back to
+TCP to establish and maintain a connection. This article explores the
+specific network scenarios, firewall configurations, and proxy setups
+that force WebRTC to encapsulate media over TCP instead of UDP.</p>
+<h2 id="strict-corporate-firewalls-blocking-udp-traffic">Strict
+Corporate Firewalls Blocking UDP Traffic</h2>
+<p>The most common scenario where WebRTC is forced to use TCP is within
+enterprise or corporate networks. Network administrators frequently
+implement strict security policies that block all outgoing UDP traffic,
+with the exception of essential services like DNS (Port 53).</p>
+<p>Because UDP is connectionless and does not verify the recipient's
+identity, administrators block it to prevent data exfiltration, malware
+communication, and unmonitored protocol usage. In this scenario, WebRTC
+cannot establish a direct Peer-to-Peer (P2P) UDP connection or connect
+to a UDP-based TURN (Traversal Using Relays around NAT) server. It must
+fall back to TCP, typically leveraging Port 443 (standard HTTPS traffic)
+to bypass the firewall.</p>
+<h2 id="deep-packet-inspection-dpi-and-secure-web-gateways">Deep Packet
+Inspection (DPI) and Secure Web Gateways</h2>
+<p>In highly secure environments, firewalls do not just block ports;
+they also use Deep Packet Inspection (DPI) to analyze the actual
+payloads of passing network packets.</p>
+<p>If a firewall detects UDP-based media protocols (like SRTP) disguised
+on allowed UDP ports, it will drop those packets. To bypass this, WebRTC
+is forced to establish a connection using TURN-over-TLS (TURNS) over TCP
+port 443. By wrapping the media in a standard TLS/TCP envelope, the
+traffic looks identical to secure web browsing (HTTPS) to the DPI
+engine, allowing the connection to succeed.</p>
+<h2 id="enterprise-proxy-server-requirements">Enterprise Proxy Server
+Requirements</h2>
+<p>Many corporate networks route all outbound web traffic through an
+explicit forward proxy server (such as an HTTP or SOCKS5 proxy) for
+logging, caching, and security scanning.</p>
+<p>Standard proxy servers are fundamentally designed to handle TCP
+connections and do not support UDP relaying. If a client device is
+behind an explicit proxy that mandates all external connections go
+through it, WebRTC cannot send UDP packets to the outside internet. It
+must establish a TCP connection to the proxy server, which then forwards
+the encapsulated media to a TURN server or the remote peer.</p>
+<h2 id="symmetric-nat-to-symmetric-nat-traversal-failures">Symmetric NAT
+to Symmetric NAT Traversal Failures</h2>
+<p>WebRTC uses STUN (Session Traversal Utilities for NAT) to discover
+public IP addresses and establish direct UDP paths between peers.
+However, when both peers are behind Symmetric NATs (common in corporate
+networks and some mobile carriers), direct UDP hole punching fails.</p>
+<p>When direct P2P connection via STUN fails, WebRTC must route traffic
+through a TURN relay server. If the network hosting either peer blocks
+outbound UDP to the TURN server, WebRTC is forced to fall back to a TCP
+connection to the TURN server (using either TURN-over-TCP or
+TURN-over-TLS) to bridge the media path between the two symmetric
+NATs.</p>
+<h2 id="mobile-carrier-cgnat-and-udp-throttling">Mobile Carrier CGNAT
+and UDP Throttling</h2>
+<p>Some mobile network operators utilize Carrier-Grade NAT (CGNAT) to
+conserve IPv4 addresses. In some instances, carriers aggressively
+throttle or completely drop UDP traffic that is not recognized as
+standard DNS or carrier-approved VoIP services (like VoLTE) to prevent
+network congestion. Under these network-constrained cellular conditions,
+WebRTC clients will experience high UDP packet loss, triggering the ICE
+agent to switch to a more stable TCP connection to maintain call
+viability, albeit at the cost of higher latency.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

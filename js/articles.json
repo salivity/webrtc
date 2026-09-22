@@ -1,0 +1,602 @@
+[
+  [
+    100,
+    "WebRTC Standardization Status in W3C and IETF",
+    "This article provides an overview of the current and future standardization status of WebRTC (Web Real-Time Communication) within its primary governing bodies: the World Wide Web Consortium (W3C) and the Internet Engineering Task Force (IETF). It outline",
+    false
+  ],
+  [
+    99,
+    "The Impact of Machine Learning on WebRTC Processing",
+    "The direct integration of Machine Learning (ML) models into WebRTC is set to revolutionize real-time communication by shifting processing power directly to the browser and edge devices. This article explores how native ML integration enhances audio and v",
+    false
+  ],
+  [
+    98,
+    "Causes of One-Way Audio and Video in WebRTC",
+    "This article explores the primary technical reasons why users experience isolated one-way audio or video during WebRTC sessions. We will examine how network configurations, firewall restrictions, NAT traversal failures, media negotiation mismatches, and",
+    false
+  ],
+  [
+    97,
+    "WebRTC Perfect Negotiation: Simplifying Peer Connection",
+    "Establishing a peer-to-peer connection in WebRTC has historically required complex, error-prone signaling logic to handle state synchronization and race conditions. The WebRTC Perfect Negotiation pattern solves these issues by decoupling negotiation logi",
+    false
+  ],
+  [
+    96,
+    "WebRTC Video Conferencing Accessibility Guide",
+    "Building a custom WebRTC video conferencing interface requires a strong focus on digital accessibility (a11y) to ensure all users, including those with visual, auditory, motor, or cognitive impairments, can participate equally. This article explores the",
+    false
+  ],
+  [
+    95,
+    "WebRTC Mobile Power Consumption and Battery Saving",
+    "Real-time communication on mobile devices is notoriously resource-intensive, but WebRTC employs several internal mechanisms to mitigate aggressive power consumption and preserve battery life. This article explores how WebRTC optimizes energy usage throug",
+    false
+  ],
+  [
+    94,
+    "Impact of Hardware Acceleration on WebRTC Video",
+    "This article explores how hardware acceleration affects WebRTC video encoding and decoding performance. Real-time communication relies heavily on low latency and efficient resource usage, making the choice between software processing and hardware-dedicat",
+    false
+  ],
+  [
+    93,
+    "WebRTC in Decentralized and Web3 Architectures",
+    "This article explores the conceptual alignment between WebRTC and Web3 architectures, detailing how WebRTC's peer-to-peer real-time communication capabilities serve as a foundational pillar for decentralized applications. We will examine how WebRTC elimi",
+    false
+  ],
+  [
+    92,
+    "WebRTC Advantages Over WebTransport for Real-Time Media",
+    "While WebTransport is an emerging protocol designed for low-latency client-server communication, WebRTC remains the dominant standard for real-time interactive media. This article highlights the key advantages WebRTC holds over WebTransport, focusing on",
+    false
+  ],
+  [
+    91,
+    "WebRTC vs RTMP vs HLS Technical Comparison",
+    "This article provides a direct technical comparison between WebRTC and older streaming protocols such as RTMP and HLS. It explores the architectural differences, transport layer behaviors, connection methodologies, and scaling capabilities that allow Web",
+    false
+  ],
+  [
+    90,
+    "WebRTC Latency Expectations for Global Connections",
+    "Real-time communication relies heavily on low latency, and WebRTC is the gold standard for achieving sub-second delivery. This article explores the realistic latency expectations for a well-optimized, globally distributed WebRTC connection, detailing key",
+    false
+  ],
+  [
+    89,
+    "WebRTC IPv4 and IPv6 Dual Stack Support",
+    "This article explains how WebRTC natively supports and transitions between dual-stack IPv4 and IPv6 networks. It covers the underlying mechanisms of Interactive Connectivity Establishment (ICE), the gathering of IP candidates, how WebRTC prioritizes IPv6",
+    false
+  ],
+  [
+    88,
+    "How WebRTC Transceivers Manage Bidirectional Streams",
+    "WebRTC transceivers (RTCRtpTransceiver) play a crucial role in modern real-time communication by combining a sender and a receiver into a single, unified object. This article explores how transceivers simplify the management of bidirectional media stream",
+    false
+  ],
+  [
+    87,
+    "Dynamically Swap WebRTC Tracks with replaceTrack",
+    "This article explains how developers can dynamically swap audio or video tracks during an active WebRTC session using the RTCRtpSender.replaceTrack() method. By utilizing this API, developers can switch camera sources, transition to screen sharing, or te",
+    false
+  ],
+  [
+    86,
+    "Purpose of RTCRtpSender and RTCRtpReceiver in WebRTC",
+    "This article explains the specific architectural purposes of the RTCRtpSender and RTCRtpReceiver objects in the WebRTC API. It explores how these interfaces transition WebRTC from a legacy stream-based model to a modern, track-level media control archite",
+    false
+  ],
+  [
+    85,
+    "How WebRTC Natively Ensures Audio Video Lip-Sync",
+    "WebRTC delivers seamless real-time communication, but keeping separate audio and video tracks in perfect synchronization—commonly known as lip-sync—presents a significant technical challenge. This article explains how WebRTC natively achieves this al",
+    false
+  ],
+  [
+    84,
+    "WebRTC SFU Max Concurrent Participants Per Room",
+    "This article examines the theoretical and practical limits of concurrent participants in a single room when using a standard WebRTC Selective Forwarding Unit (SFU). It explains the underlying routing mathematics, details the server-side and client-side b",
+    false
+  ],
+  [
+    83,
+    "How WebRTC Bypasses Aggressive UDP Blocking",
+    "WebRTC applications rely heavily on UDP for low-latency audio and video streaming, but highly restricted networks—such as corporate firewalls and public Wi-Fi—frequently block all non-essential UDP traffic. To maintain connectivity under these harsh",
+    false
+  ],
+  [
+    82,
+    "Impact of Corporate Firewalls on WebRTC Traffic",
+    "Strictly configured corporate firewalls often disrupt WebRTC (Web Real-Time Communication) traffic, leading to dropped calls, failed connections, and poor media quality. This article explores the specific operational impacts of these security restriction",
+    false
+  ],
+  [
+    81,
+    "WebRTC Symmetric NAT Traversal Explained",
+    "WebRTC is designed for peer-to-peer (P2P) communication, but security configurations like Symmetric NAT make direct connections impossible. This article explains how WebRTC bypasses Symmetric NAT restrictions using the ICE framework, STUN servers, and ul",
+    false
+  ],
+  [
+    80,
+    "What is Google Congestion Control in WebRTC?",
+    "Real-time communication relies on delivering high-quality audio and video without causing network congestion. This article explores Google Congestion Control (GCC), a foundational algorithm used in WebRTC to manage media flows. We will examine how GCC wo",
+    false
+  ],
+  [
+    79,
+    "How WebRTC Bandwidth Estimation Works",
+    "Real-time communication relies heavily on adapting to fluctuating network conditions to maintain clear audio and video. This article provides a comprehensive look at how WebRTC continuously calculates and utilizes internal Bandwidth Estimation (BWE) to p",
+    false
+  ],
+  [
+    78,
+    "WebRTC ICE Restart Purpose and Mechanism",
+    "In WebRTC-based applications, maintaining a stable media connection is critical, even when network conditions change abruptly. This article explains the explicit purpose and technical mechanism of triggering an Interactive Connectivity Establishment (ICE",
+    false
+  ],
+  [
+    77,
+    "WebRTC ICE Connection Failure Recovery Guide",
+    "WebRTC applications rely on Interactive Connectivity Establishment (ICE) to establish peer-to-peer connections, but network fluctuations, firewall changes, or IP switches can cause these connections to unexpectedly fail. This article explores how to buil",
+    false
+  ],
+  [
+    76,
+    "Understanding WebRTC iceConnectionState",
+    "This article explains the purpose of the WebRTC iceConnectionState attribute and what its various states communicate to the application layer. By understanding these states, developers can effectively monitor, troubleshoot, and manage the lifecycle of a",
+    false
+  ],
+  [
+    75,
+    "WebRTC Connection State Changes and Disconnections",
+    "This article explores how WebRTC manages real-time connectivity under volatile network conditions, detailing the internal mechanisms that handle temporary drops and abrupt peer disconnections. We will examine the transition of ICE connection states, the",
+    false
+  ],
+  [
+    74,
+    "WebRTC Signaling over HTTP Long Polling",
+    "While WebSockets are the industry standard for WebRTC signaling, HTTP Long Polling can indeed be successfully used as an alternative transport mechanism. This article explores how HTTP Long Polling functions for WebRTC connection establishment, compares",
+    false
+  ],
+  [
+    73,
+    "WebSockets Role in WebRTC Signaling Architecture",
+    "WebRTC enables real-time, peer-to-peer audio, video, and data streaming directly between browsers. However, before two peers can connect, they must exchange session metadata, network addresses, and media capabilities through a process known as signaling.",
+    false
+  ],
+  [
+    72,
+    "Janus vs Mediasoup vs Jitsi WebRTC Comparison",
+    "Choosing the right WebRTC media server is critical for building scalable, real-time communication applications. This article provides a direct functional comparison of three of the most popular open-source WebRTC media servers: Janus, Mediasoup, and Jits",
+    false
+  ],
+  [
+    71,
+    "Google libwebrtc Role in the WebRTC Ecosystem",
+    "This article explores the critical role Google’s libwebrtc library plays within the global real-time communications landscape. It examines how this open-source codebase serves as the foundational engine for major web browsers and mobile applications, i",
+    false
+  ],
+  [
+    70,
+    "C++ WebRTC vs JavaScript WebRTC Differences",
+    "WebRTC (Web Real-Time Communication) enables real-time audio, video, and data transmission across diverse platforms, but its implementation varies significantly between native C++ libraries and browser-based JavaScript APIs. While JavaScript WebRTC relie",
+    false
+  ],
+  [
+    69,
+    "WebRTC Background Execution Challenges on Mobile",
+    "Running WebRTC in a background state on iOS and Android presents significant technical hurdles due to aggressive mobile operating system resource management. This article examines the primary challenges developers face when attempting to maintain real-ti",
+    false
+  ],
+  [
+    68,
+    "WebRTC Performance and Scaling on iOS and Android",
+    "Real-time communication on mobile devices requires a delicate balance between performance, network stability, and resource optimization. This article explores how WebRTC performs on native iOS and Android platforms, examining CPU and battery consumption,",
+    false
+  ],
+  [
+    67,
+    "Security Restrictions for WebRTC getDisplayMedia",
+    "The WebRTC getDisplayMedia API enables web applications to initiate screen-sharing sessions directly from the browser. However, because sharing a screen can expose highly sensitive personal or corporate data, browsers enforce rigorous security mechanisms",
+    false
+  ],
+  [
+    66,
+    "How WebRTC Supports Native Screen Sharing",
+    "WebRTC (Web Real-Time Communication) provides native, plugin-free screen sharing capabilities directly within modern web browsers. This article explains how WebRTC implements this functionality, focusing on the browser-level APIs used to capture the scre",
+    false
+  ],
+  [
+    65,
+    "WebRTC Insertable Streams API for E2EE in SFUs",
+    "This article explains the WebRTC Insertable Streams API, a web standard that allows developers to access and manipulate raw media data in real-time communication pipelines. You will learn how this API operates, the security limitations of traditional Sel",
+    false
+  ],
+  [
+    64,
+    "Apply Video Filters to WebRTC Streams with Canvas API",
+    "This article explains how developers can apply custom real-time video filters and effects to a WebRTC stream using the HTML5 Canvas API. By capturing a camera feed, drawing its frames onto a canvas, manipulating the raw pixel data, and capturing the canv",
+    false
+  ],
+  [
+    63,
+    "WebRTC Audio Processing Beyond Echo Cancellation",
+    "While Acoustic Echo Cancellation (AEC) is a cornerstone of real-time communication, WebRTC incorporates a comprehensive suite of additional built-in audio processing technologies to ensure clear, high-quality voice transmission. This article examines the",
+    false
+  ],
+  [
+    62,
+    "WebRTC Audio Echo Cancellation Explained",
+    "WebRTC (Web Real-Time Communication) provides native, real-time audio processing directly within the browser, featuring built-in Audio Echo Cancellation (AEC) to ensure clear communication. This article explains how WebRTC's native media engine detects a",
+    false
+  ],
+  [
+    61,
+    "Critical WebRTC KPIs for Enterprise Applications",
+    "Monitoring WebRTC performance is vital for maintaining high-quality real-time communication in enterprise environments. This article outlines the most critical key performance indicators (KPIs) you need to track—ranging from connection establishment an",
+    false
+  ],
+  [
+    60,
+    "Monitor WebRTC Call Quality Using getStats API",
+    "The WebRTC getStats() API is a crucial tool for developers building real-time communication applications, providing direct access to low-level network and media performance data. This article explores how the API works, highlights the critical metrics it",
+    false
+  ],
+  [
+    59,
+    "Key Metrics in chrome://webrtc-internals",
+    "The chrome://webrtc-internals tool is an essential diagnostic page in Google Chrome used by developers to troubleshoot real-time communication issues. This article provides a direct overview of the specific diagnostic metrics you can extract from this to",
+    false
+  ],
+  [
+    58,
+    "Debugging WebRTC Connections in Google Chrome",
+    "Debugging complex WebRTC connections in Google Chrome is essential for ensuring reliable real-time communication. This article provides a direct, practical guide on how developers can leverage Chrome's built-in, native tools—specifically chrome://webrt",
+    false
+  ],
+  [
+    57,
+    "WebRTC RTCDataChannel Use Cases Beyond Video",
+    "While WebRTC is widely known for enabling real-time audio and video communication, its RTCDataChannel API offers a powerful, low-latency, peer-to-peer pathway for transferring arbitrary data directly between browsers. This article explores the most commo",
+    false
+  ],
+  [
+    56,
+    "How WebRTC Uses SCTP Protocol",
+    "This article explores how the Stream Control Transmission Protocol (SCTP) is utilized internally within WebRTC to power non-media data transfers. It explains the integration of SCTP within the WebRTC protocol stack, its encapsulation over DTLS and UDP, a",
+    false
+  ],
+  [
+    55,
+    "WebRTC RTCDataChannel Underlying Transport Protocol",
+    "This article explores the specific network protocols that power WebRTC’s RTCDataChannel, the technology responsible for peer-to-peer data exchange in web browsers. Readers will learn about the Stream Control Transmission Protocol (SCTP), how it operate",
+    false
+  ],
+  [
+    54,
+    "Configure WebRTC RTCDataChannel Reliability",
+    "This article explains how to explicitly configure the WebRTC RTCDataChannel for either reliable or unreliable packet delivery. You will learn about the configuration parameters used during channel creation, including how to mimic TCP-like reliability or",
+    false
+  ],
+  [
+    53,
+    "How WebRTC RTCDataChannel Achieves Low Latency",
+    "WebRTC’s RTCDataChannel is a powerful technology designed for high-performance, peer-to-peer (P2P) data transfer directly between browsers. This article explores how RTCDataChannel achieves sub-second, ultra-low-latency communication by examining its u",
+    false
+  ],
+  [
+    52,
+    "What is a WebRTC Gateway and Why Do Enterprises Need It?",
+    "WebRTC has revolutionized real-time communication by enabling browsers to share audio, video, and data without plugins. However, integrating this browser-based technology with legacy enterprise communication systems requires a bridge. This article explai",
+    false
+  ],
+  [
+    51,
+    "Integrating WebRTC with Legacy VoIP and SIP Systems",
+    "This article explains how modern WebRTC technology successfully integrates with traditional Session Initiation Protocol (SIP) and legacy Voice over IP (VoIP) systems. It details the critical role of media and signaling gateways, Session Border Controller",
+    false
+  ],
+  [
+    50,
+    "Scaling WebRTC: Why SFUs are the Industry Standard",
+    "In the rapidly evolving landscape of real-time communication, Selective Forwarding Units (SFUs) have emerged as the definitive standard for hosting large-scale WebRTC video conferences. This article explores how SFUs solve the scalability limitations of",
+    false
+  ],
+  [
+    49,
+    "WebRTC SFU vs MCU: Key Differences Explained",
+    "Multi-party video conferencing in WebRTC relies on different backend architectures to connect multiple participants. This article explains the fundamental differences between a Selective Forwarding Unit (SFU) and a Multipoint Control Unit (MCU), focusing",
+    false
+  ],
+  [
+    48,
+    "What is a WebRTC MCU and How Does It Work",
+    "In multi-party video conferencing, managing multiple media streams efficiently is crucial for a smooth user experience. This article explains what a WebRTC Multipoint Control Unit (MCU) is, how it functions as a centralized media server, and details the",
+    false
+  ],
+  [
+    47,
+    "WebRTC Mesh Topology Scaling Limitations",
+    "WebRTC mesh topology allows direct peer-to-peer media exchange without a centralized media server, offering low latency and cost-effectiveness for small groups. However, as the number of participants grows, this architecture faces severe bottlenecks in b",
+    false
+  ],
+  [
+    46,
+    "WebRTC Mesh vs Centralized Server Architecture",
+    "This article explores the fundamental architectural differences between a WebRTC Mesh network and centralized server architectures, such as Selective Forwarding Units (SFUs) and Multipoint Control Units (MCUs). We will examine how data flows in both setu",
+    false
+  ],
+  [
+    45,
+    "How WebRTC Uses PLI for Fast Video Recovery",
+    "In real-time communications, packet loss can severely disrupt video playback, leading to frozen or pixelated screens. WebRTC addresses this challenge using Picture Loss Indication (PLI) messages, a feedback mechanism that allows a receiver to signal the",
+    false
+  ],
+  [
+    44,
+    "What is Forward Error Correction in WebRTC",
+    "In real-time communications, network packet loss can severely degrade audio and video quality, leading to choppy audio and frozen video frames. This article explains Forward Error Correction (FEC), a proactive error-recovery mechanism used in WebRTC to r",
+    false
+  ],
+  [
+    43,
+    "How WebRTC Uses NACK to Recover Lost Packets",
+    "This article provides an overview of how WebRTC utilizes Negative Acknowledgment (NACK) to recover lost media packets during real-time communication. You will learn how the sender and receiver coordinate using RTP sequence numbers, the role of the retran",
+    false
+  ],
+  [
+    42,
+    "Role of Jitter Buffer in WebRTC Audio and Video",
+    "This article explains the critical function of a jitter buffer within the WebRTC audio and video receiving pipeline. It explores how this component combats network instability by collecting, reordering, and smoothing out the delivery of media packets, ul",
+    false
+  ],
+  [
+    41,
+    "How WebRTC Handles Packet Loss and Network Jitter",
+    "Real-time communication over the internet faces constant challenges from unstable network conditions, particularly packet loss and arrival delays known as jitter. WebRTC (Web Real-Time Communication) maintains smooth audio and video streams under these c",
+    false
+  ],
+  [
+    40,
+    "Purpose of RTCP Sender and Receiver Reports in WebRTC",
+    "This article explains the operational purposes of Real-Time Control Protocol (RTCP) Sender Reports (SR) and Receiver Reports (RR) within WebRTC applications. It covers how these control packets function to synchronize media streams, monitor network quali",
+    false
+  ],
+  [
+    39,
+    "How WebRTC Uses RTCP for Telemetry",
+    "WebRTC relies on the Real-time Transport Control Protocol (RTCP) to monitor and maintain the quality of real-time audio and video streams. This article explains how WebRTC utilizes RTCP for telemetry, focusing on how it gathers performance statistics, ma",
+    false
+  ],
+  [
+    38,
+    "SVC vs Simulcast in WebRTC",
+    "This article provides a comparative analysis of Scalable Video Coding (SVC) and Simulcast within WebRTC ecosystems. It explains their functional mechanisms, exploring how each technology manages video streams, impacts sender and receiver performance, and",
+    false
+  ],
+  [
+    37,
+    "WebRTC Simulcast: Optimizing Multi-Party Video Routing",
+    "WebRTC Simulcast is a media negotiation technique that allows a single video client to transmit multiple resolutions and bitrates of the same video stream to a media server simultaneously. This article explores how WebRTC Simulcast works, its role in mul",
+    false
+  ],
+  [
+    36,
+    "How WebRTC Adapts to Fluctuating Network Bandwidth",
+    "Real-time communication relies on stability, but network conditions are constantly changing due to congestion, signal strength, and hardware limitations. WebRTC (Web Real-Time Communication) solves this problem by dynamically adjusting video and audio qu",
+    false
+  ],
+  [
+    35,
+    "Advantages of VP9 and AV1 Codecs in WebRTC",
+    "Real-time communication relies heavily on efficient video compression to deliver high-quality streams under varying network conditions. This article explores the core advantages of adopting newer video codecs like VP9 and AV1 in WebRTC applications, focu",
+    false
+  ],
+  [
+    34,
+    "How WebRTC Negotiates VP8 and H.264 Video Codecs",
+    "This article explains how WebRTC automatically negotiates video codecs, specifically VP8 and H.264, between two connecting peers. It covers the underlying Session Description Protocol (SDP) offer/answer exchange, how codec preferences are ordered, and ho",
+    false
+  ],
+  [
+    33,
+    "WebRTC Supported Video Codecs",
+    "To establish successful real-time video communication, WebRTC-enabled browsers must agree on a common format to compress and decompress video data. This article outlines the video codecs that are universally supported across all major WebRTC browser impl",
+    false
+  ],
+  [
+    32,
+    "Why Opus Codec is Preferred for WebRTC Audio",
+    "Real-Time Communication (WebRTC) relies heavily on high-quality, low-latency audio to ensure seamless communication over the internet. This article explores why the Opus codec has become the undisputed industry standard for WebRTC audio, examining its un",
+    false
+  ],
+  [
+    31,
+    "Mandated Audio Codecs in WebRTC",
+    "This article provides a clear overview of the audio codecs that are natively supported and mandated by the WebRTC (Web Real-Time Communication) specification. To ensure seamless, cross-browser interoperability without requiring external plugins, the Inte",
+    false
+  ],
+  [
+    30,
+    "WebRTC IP Leak Protection in Modern Browsers",
+    "WebRTC (Web Real-Time Communication) enables seamless peer-to-peer voice, video, and data sharing directly within web browsers. However, its default connection mechanism historically introduced a major privacy vulnerability by exposing users' local and p",
+    false
+  ],
+  [
+    29,
+    "WebRTC IP Leak Privacy Risks Explained",
+    "WebRTC (Web Real-Time Communication) is an open-source project that enables browsers to establish direct peer-to-peer connections for voice, video, and data sharing. While it revolutionized web communication, it historically introduced severe privacy vul",
+    false
+  ],
+  [
+    28,
+    "How WebRTC Prevents Man-in-the-Middle Attacks",
+    "WebRTC (Web Real-Time Communication) provides robust security against Man-in-the-Middle (MitM) attacks by enforcing mandatory, end-to-end encryption for all audio, video, and data streams. This article explores the core cryptographic mechanisms that WebR",
+    false
+  ],
+  [
+    27,
+    "Is WebRTC Encryption Mandatory in Browsers?",
+    "This article examines whether it is possible to establish a standard browser-based WebRTC (Web Real-Time Communication) session without encryption. It explains the security standards defined by the internet engineering task forces, how modern web browser",
+    false
+  ],
+  [
+    26,
+    "How WebRTC Uses SRTP for Secure Media",
+    "WebRTC (Web Real-Time Communication) relies on the Secure Real-time Transport Protocol (SRTP) to ensure that audio and video streams transmitted between peers remain private and secure. This article explores how WebRTC integrates SRTP, the cryptographic",
+    false
+  ],
+  [
+    25,
+    "Role of DTLS in WebRTC Explained",
+    "Datagram Transport Layer Security (DTLS) is a cornerstone of WebRTC security, providing encryption, integrity, and authentication for real-time communication. This article explains how DTLS operates over UDP to secure WebRTC media and data channels, how",
+    false
+  ],
+  [
+    24,
+    "How WebRTC Ensures Media Stream Security and Encryption",
+    "WebRTC (Web Real-Time Communication) has revolutionized peer-to-peer communication, but keeping real-time voice, video, and data secure is critical. This article explores how WebRTC guarantees robust security and mandatory encryption for all media stream",
+    false
+  ],
+  [
+    23,
+    "Why WebRTC Falls Back to TCP Over UDP",
+    "While WebRTC is designed to prioritize UDP for real-time, low-latency media streaming, certain network restrictions prevent UDP packets from reaching their destination. In these restrictive environments, WebRTC's Interactive Connectivity Establishment (I",
+    false
+  ],
+  [
+    22,
+    "Why WebRTC Prioritizes UDP Over TCP for Media",
+    "WebRTC (Web Real-Time Communication) is designed to enable sub-second, real-time audio and video streaming directly between browsers. To achieve the ultra-low latency required for live conversation, WebRTC inherently favors User Datagram Protocol (UDP) o",
+    false
+  ],
+  [
+    21,
+    "What is Trickle ICE and How Does It Speed Up WebRTC?",
+    "Trickle ICE is an optimization framework for the Interactive Connectivity Establishment (ICE) protocol, designed to significantly accelerate the connection establishment process in WebRTC. In traditional WebRTC setups, peers must gather all potential net",
+    false
+  ],
+  [
+    20,
+    "How WebRTC Selects the Best ICE Candidate Path",
+    "WebRTC establishes direct peer-to-peer connections using the Interactive Connectivity Establishment (ICE) protocol to bypass firewalls and Network Address Translators (NATs). This article explains how WebRTC gathers network pathways (ICE candidates), pri",
+    false
+  ],
+  [
+    19,
+    "WebRTC TURN Server Bandwidth and Cost Implications",
+    "This article provides a comprehensive overview of the bandwidth and server cost implications of using TURN (Traversal Using Relays around NAT) servers in WebRTC deployments. It explains why TURN servers are necessary, how they impact network bandwidth co",
+    false
+  ],
+  [
+    18,
+    "How TURN Servers Facilitate WebRTC Media Relay",
+    "WebRTC technology is designed to establish direct peer-to-peer connections for real-time audio, video, and data streaming. However, strict firewalls and complex network configurations often block these direct paths, causing connection failures. This arti",
+    false
+  ],
+  [
+    17,
+    "When Does WebRTC Use a TURN Server?",
+    "WebRTC is designed for peer-to-peer real-time communication, but direct connections often fail due to restrictive network barriers. This article explains the specific network circumstances—such as symmetric NATs, strict corporate firewalls, and blocked",
+    false
+  ],
+  [
+    16,
+    "How WebRTC Clients Discover Public IPs Using STUN",
+    "This article explains how WebRTC clients use STUN (Session Traversal Utilities for NAT) servers to discover their public IP addresses and port numbers. It covers the limitations of local network environments, the step-by-step communication process betwee",
+    false
+  ],
+  [
+    15,
+    "Why WebRTC Relies on STUN Servers",
+    "WebRTC enables real-time, peer-to-peer audio, video, and data streaming directly between web browsers without requiring third-party plugins. However, establishing a direct connection between two devices is often blocked by security barriers and local net",
+    false
+  ],
+  [
+    14,
+    "Host vs Server Reflexive vs Relay ICE Candidates",
+    "This article explains the technical differences between host, server reflexive (srflx), and relay (relay) ICE candidates within the WebRTC framework. We will examine how Interactive Connectivity Establishment (ICE) gathers these candidates, the distinct",
+    false
+  ],
+  [
+    13,
+    "How WebRTC Applications Gather ICE Candidates",
+    "WebRTC applications use the Interactive Connectivity Establishment (ICE) framework to discover the most efficient network path for establishing a peer-to-peer connection. This article provides a clear, step-by-step explanation of how a WebRTC application",
+    false
+  ],
+  [
+    12,
+    "What is ICE in WebRTC Routing",
+    "This article provides an overview of Interactive Connectivity Establishment (ICE) and its critical role in WebRTC routing. You will learn how the ICE framework overcomes network barriers like firewalls and Network Address Translators (NATs) to establish",
+    false
+  ],
+  [
+    11,
+    "WebRTC NAT Traversal Explained",
+    "Real-time communication on the web requires direct peer-to-peer connections, but Network Address Translation (NAT) often blocks these direct paths by hiding devices behind private IP addresses. This article explains how WebRTC successfully navigates and",
+    false
+  ],
+  [
+    10,
+    "WebRTC SDP Offer and Answer Explained",
+    "This article provides a clear and concise explanation of Session Description Protocol (SDP) offers and answers within the context of WebRTC. It covers what these messages contain, how they are generated, and how they enable two browser peers to negotiate",
+    false
+  ],
+  [
+    9,
+    "How WebRTC Uses SDP in Signaling",
+    "WebRTC (Web Real-Time Communication) relies on the Session Description Protocol (SDP) to negotiate media and network capabilities between peers. This article explains how WebRTC utilizes SDP during the signaling phase, detailing the offer/answer model, t",
+    false
+  ],
+  [
+    8,
+    "What Information Is Exchanged in WebRTC Signaling?",
+    "WebRTC (Web Real-Time Communication) allows web browsers and mobile applications to stream audio, video, and data directly between peers without requiring an intermediary server. However, before this peer-to-peer connection can be established, the two de",
+    false
+  ],
+  [
+    7,
+    "Why Does WebRTC Need a Signaling Server?",
+    "WebRTC enables direct peer-to-peer communication between browsers for sharing video, audio, and data. However, because devices cannot inherently discover or communicate with each other over the internet without prior coordination, they require an interme",
+    false
+  ],
+  [
+    6,
+    "How WebRTC RTCDataChannel Handles Arbitrary Data",
+    "This article explains how WebRTC utilizes the RTCDataChannel API to facilitate high-performance, low-latency, peer-to-peer transfer of arbitrary data. We will explore the underlying protocol stack, including SCTP, DTLS, and UDP, and examine how developer",
+    false
+  ],
+  [
+    5,
+    "What is RTCPeerConnection in WebRTC?",
+    "The RTCPeerConnection interface is the core component of the WebRTC (Web Real-Time Communication) API, acting as the primary hub for establishing direct, peer-to-peer connections between web browsers. This article explains the specific roles of RTCPeerCo",
+    false
+  ],
+  [
+    4,
+    "How WebRTC Uses getUserMedia for Device Access",
+    "WebRTC (Web Real-Time Communication) relies on the getUserMedia API to capture local audio and video media directly from a user's device, such as a camera or microphone. This article explains how the getUserMedia API serves as the gateway for media acqui",
+    false
+  ],
+  [
+    3,
+    "Core JavaScript WebRTC APIs Explained",
+    "This article provides a clear overview of the native JavaScript APIs that enable Web Real-Time Communication (WebRTC) in modern web browsers. You will learn about the three primary APIs—MediaDevices, RTCPeerConnection, and RTCDataChannel—that allow d",
+    false
+  ],
+  [
+    2,
+    "How WebRTC Achieves Peer-to-Peer Communication",
+    "WebRTC (Web Real-Time Communication) is an open-source standard that enables browsers and mobile applications to exchange audio, video, and data directly with one another in real time. This article explains how WebRTC bypasses traditional intermediary me",
+    false
+  ],
+  [
+    1,
+    "What is the Primary Purpose of WebRTC",
+    "Web Real-Time Communication (WebRTC) is a transformative open-source technology that enables web browsers and mobile applications to exchange audio, video, and data directly with one another. This article explains the primary purpose of WebRTC in modern",
+    false
+  ]
+]

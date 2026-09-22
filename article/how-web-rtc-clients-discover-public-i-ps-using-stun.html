@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How WebRTC Clients Discover Public IPs Using STUN - webrtc</title>
+    <meta name="description" content="This article explains how WebRTC clients use STUN (Session Traversal Utilities for NAT) servers to discover their public IP addresses and port numbers. It covers the limitations of local network environments, the step-by-step communication process betwee">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/how-web-rtc-clients-discover-public-i-ps-using-stun">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How WebRTC Clients Discover Public IPs Using STUN - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/how-web-rtc-clients-discover-public-i-ps-using-stun" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explains how WebRTC clients use STUN (Session Traversal Utilities for NAT) servers to discover their public IP addresses and port numbers. It covers the limitations of local network environments, the step-by-step communication process betwee" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-webrtc-clients-discover-public-ips-using-stun">How WebRTC
+Clients Discover Public IPs Using STUN</h1>
+<p>This article explains how WebRTC clients use STUN (Session Traversal
+Utilities for NAT) servers to discover their public IP addresses and
+port numbers. It covers the limitations of local network environments,
+the step-by-step communication process between a client and a STUN
+server, and how this discovered information is utilized to establish
+direct peer-to-peer connections across the internet.</p>
+<h2 id="the-challenge-of-network-address-translation-nat">The Challenge
+of Network Address Translation (NAT)</h2>
+<p>Most consumer devices do not have unique, public IP addresses.
+Instead, they operate behind routers that use Network Address
+Translation (NAT). A router assigns private IP addresses (such as
+<code>192.168.1.5</code>) to devices on the local network and shares a
+single public IP address to communicate with the wider internet.</p>
+<p>While this system conserves IPv4 addresses and enhances security, it
+poses a major obstacle for WebRTC. To establish a direct peer-to-peer
+(P2P) connection, two devices must know each other's public-facing IP
+addresses and port numbers. Because a device inside a local network is
+unaware of the external NAT mapping, it cannot share its public contact
+information without external help.</p>
+<h2 id="how-the-stun-server-acts-as-a-mirror">How the STUN Server Acts
+as a Mirror</h2>
+<p>A STUN server is a lightweight, public-facing server that assists
+WebRTC clients in discovering their public network presence. The process
+is highly efficient and functions similarly to looking into a
+mirror.</p>
+<p>Here is the step-by-step process of how a WebRTC client discovers its
+public IP using STUN:</p>
+<ol type="1">
+<li><strong>The STUN Binding Request:</strong> The WebRTC client
+initiates the process by sending a lightweight UDP packet called a "STUN
+Binding Request" to the STUN server's public IP address.</li>
+<li><strong>NAT Translation:</strong> As the packet passes through the
+client's local router (the NAT device), the router modifies the packet's
+header. It replaces the client's private IP and port with the router's
+public IP and a dynamically allocated port.</li>
+<li><strong>Inspection by the Server:</strong> The STUN server receives
+the packet. Because the packet had to pass through the NAT, the source
+IP and port displayed in the packet header are the client's
+public-facing credentials.</li>
+<li><strong>The STUN Binding Response:</strong> The STUN server copies
+this public IP address and port number from the packet header and writes
+them directly into the <em>body (payload)</em> of a "STUN Binding
+Response" packet.</li>
+<li><strong>Delivery and Discovery:</strong> The server sends this
+response packet back to the client. When the client receives and parses
+the packet, it reads its own public IP address and port from the
+payload.</li>
+</ol>
+<h2
+id="integrating-discovered-ips-into-webrtc-connection-establishment">Integrating
+Discovered IPs into WebRTC Connection Establishment</h2>
+<p>Once the client successfully extracts its public IP and port from the
+STUN response, this pair is labeled as a "Server Reflexive Candidate"
+(srflx).</p>
+<p>The client then bundles this candidate, along with its local network
+candidates, into an Interactive Connectivity Establishment (ICE)
+candidate list. These candidates are exchanged with the remote peer via
+a signaling server. The peers then test these address pairs to find the
+most direct and efficient network path to establish the secure,
+real-time media or data channel.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

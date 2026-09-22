@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purpose of RTCP Sender and Receiver Reports in WebRTC - webrtc</title>
+    <meta name="description" content="This article explains the operational purposes of Real-Time Control Protocol (RTCP) Sender Reports (SR) and Receiver Reports (RR) within WebRTC applications. It covers how these control packets function to synchronize media streams, monitor network quali">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/purpose-of-rtcp-sender-and-receiver-reports-in-web-rtc">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Purpose of RTCP Sender and Receiver Reports in WebRTC - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/purpose-of-rtcp-sender-and-receiver-reports-in-web-rtc" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explains the operational purposes of Real-Time Control Protocol (RTCP) Sender Reports (SR) and Receiver Reports (RR) within WebRTC applications. It covers how these control packets function to synchronize media streams, monitor network quali" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="purpose-of-rtcp-sender-and-receiver-reports-in-webrtc">Purpose
+of RTCP Sender and Receiver Reports in WebRTC</h1>
+<p>This article explains the operational purposes of Real-Time Control
+Protocol (RTCP) Sender Reports (SR) and Receiver Reports (RR) within
+WebRTC applications. It covers how these control packets function to
+synchronize media streams, monitor network quality of service (QoS),
+calculate round-trip time (RTT), and facilitate congestion control to
+ensure smooth real-time communication.</p>
+<p>In WebRTC, while the Real-time Transport Protocol (RTP) carries the
+actual audio and video data, its companion protocol, RTCP, manages the
+delivery quality and synchronization of these streams. The two most
+critical RTCP packet types used for this purpose are Sender Reports (SR)
+and Receiver Reports (RR).</p>
+<h3 id="rtcp-sender-reports-sr">RTCP Sender Reports (SR)</h3>
+<p>Sender Reports are generated and transmitted by active senders in a
+WebRTC session. Their primary operational purposes include:</p>
+<ul>
+<li><strong>Media Synchronization (Lip-Sync):</strong> RTP timestamps
+are randomized at the start of a stream and tick at different rates for
+audio and video. An SR contains both an absolute wall-clock time (NTP
+timestamp) and the corresponding RTP timestamp. By mapping these two
+timelines together, the receiver can align separate audio and video
+tracks, preventing synchronization drift (lip-sync issues).</li>
+<li><strong>Transmission Statistics:</strong> SRs contain cumulative
+counters for the total number of packets and bytes (octets) transmitted.
+This allows the receiver to estimate the sender's average transmission
+bitrate and detect if substantial blocks of data are missing before
+processing.</li>
+</ul>
+<h3 id="rtcp-receiver-reports-rr">RTCP Receiver Reports (RR)</h3>
+<p>Receiver Reports are sent by participants who receive media streams.
+Their primary operational purposes are:</p>
+<ul>
+<li><strong>Feedback on Reception Quality:</strong> RRs provide feedback
+on the quality of the received stream. They contain critical metrics,
+including:
+<ul>
+<li><strong>Fraction Lost:</strong> The percentage of packets lost since
+the last report.</li>
+<li><strong>Cumulative Number of Packets Lost:</strong> The total number
+of lost packets during the entire session.</li>
+<li><strong>Interarrival Jitter:</strong> An estimate of the statistical
+variance in packet arrival times, which indicates network
+congestion.</li>
+</ul></li>
+<li><strong>Round-Trip Time (RTT) Calculation:</strong> RRs contain the
+"Last SR" (LSR) timestamp (the NTP timestamp from the last received
+Sender Report) and the "Delay Since Last SR" (DLSR). When the sender
+receives the RR, it subtracts the LSR and the DLSR from the current time
+to calculate the exact round-trip network latency between the
+peers.</li>
+</ul>
+<h3 id="operational-synergy-and-congestion-control">Operational Synergy
+and Congestion Control</h3>
+<p>Together, SR and RR packets form a continuous feedback loop that
+WebRTC leverages for dynamic network adaptation.</p>
+<p>The sender analyzes the packet loss and jitter reported in the RRs,
+combined with the calculated RTT. If the receiver reports high packet
+loss or rising jitter, the WebRTC congestion control algorithm (such as
+Google Congestion Control) instructs the media engine to lower the
+bitrate, reduce resolution, or adjust the frame rate. Conversely, if the
+RRs report zero packet loss and low latency, the sender can safely scale
+up the media quality to utilize the available bandwidth.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

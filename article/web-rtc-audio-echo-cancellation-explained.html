@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC Audio Echo Cancellation Explained - webrtc</title>
+    <meta name="description" content="WebRTC (Web Real-Time Communication) provides native, real-time audio processing directly within the browser, featuring built-in Audio Echo Cancellation (AEC) to ensure clear communication. This article explains how WebRTC's native media engine detects a">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/web-rtc-audio-echo-cancellation-explained">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="WebRTC Audio Echo Cancellation Explained - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/web-rtc-audio-echo-cancellation-explained" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="WebRTC (Web Real-Time Communication) provides native, real-time audio processing directly within the browser, featuring built-in Audio Echo Cancellation (AEC) to ensure clear communication. This article explains how WebRTC's native media engine detects a" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="webrtc-audio-echo-cancellation-explained">WebRTC Audio Echo
+Cancellation Explained</h1>
+<p>WebRTC (Web Real-Time Communication) provides native, real-time audio
+processing directly within the browser, featuring built-in Audio Echo
+Cancellation (AEC) to ensure clear communication. This article explains
+how WebRTC's native media engine detects and suppresses acoustic
+feedback, the role of browser APIs, and how developers can configure
+these echo cancellation settings.</p>
+<h3 id="the-core-mechanism-of-aec-in-webrtc">The Core Mechanism of AEC
+in WebRTC</h3>
+<p>WebRTC handles echo cancellation through its internal Digital Signal
+Processing (DSP) pipeline. When a remote user's voice plays through a
+local user's speakers, that sound is often picked up by the local
+microphone, creating an echo loop. WebRTC prevents this by comparing the
+outgoing audio signal (the reference signal sent to the speakers) with
+the incoming audio signal (captured by the microphone). Using adaptive
+filtering algorithms, the engine subtracts the speaker signal from the
+microphone input, neutralizing the echo before it is transmitted back to
+the remote peer.</p>
+<h3 id="the-native-software-engine">The Native Software Engine</h3>
+<p>Most modern browsers leverage the open-source WebRTC codebase. This
+codebase includes a dedicated software-based AEC module (specifically
+AEC3 in modern implementations). AEC3 uses advanced mathematical models
+to estimate the delay between the speaker output and the microphone
+input, accounting for room acoustics, physical distance, and hardware
+latency. It also features double-talk detection to ensure that when both
+participants speak simultaneously, their voices are not mistakenly
+cancelled out.</p>
+<h3 id="hardware-based-vs-software-based-aec">Hardware-Based vs.
+Software-Based AEC</h3>
+<p>While WebRTC provides a robust software-based AEC, it also attempts
+to utilize hardware-level echo cancellation if the user's operating
+system or audio hardware supports it. Hardware AEC is generally more
+efficient because it offloads processing from the CPU to the audio chip,
+reducing latency and system resource usage. WebRTC automatically
+negotiates with the underlying operating system to prioritize hardware
+AEC, falling back to its internal software algorithm if hardware
+acceleration is unavailable.</p>
+<h3 id="developer-configuration-via-mediatrackconstraints">Developer
+Configuration via MediaTrackConstraints</h3>
+<p>Developers can control WebRTC’s native echo cancellation using the
+<code>MediaTrackConstraints</code> dictionary when requesting media
+access via <code>navigator.mediaDevices.getUserMedia()</code>. By
+default, browsers enable echo cancellation automatically, but it can be
+explicitly toggled using the <code>echoCancellation</code> boolean
+constraint.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> constraints <span class="op">=</span> {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">audio</span><span class="op">:</span> {</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">echoCancellation</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span> <span class="co">// Natively enables WebRTC&#39;s AEC</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">noiseSuppression</span><span class="op">:</span> <span class="kw">true</span><span class="op">,</span>  <span class="co">// Works alongside AEC to reduce background noise</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">autoGainControl</span><span class="op">:</span> <span class="kw">true</span>   <span class="co">// Adjusts mic volume automatically</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>}<span class="op">;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="bu">navigator</span><span class="op">.</span><span class="at">mediaDevices</span><span class="op">.</span><span class="fu">getUserMedia</span>(constraints)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="fu">then</span>(stream <span class="kw">=&gt;</span> {</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Use the stream with native AEC enabled</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  })<span class="op">;</span></span></code></pre></div>
+<p>By combining adaptive filtering, hardware integration, and simple API
+controls, WebRTC delivers clear, echo-free audio directly in the browser
+without requiring external plugins or third-party audio processing
+libraries.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

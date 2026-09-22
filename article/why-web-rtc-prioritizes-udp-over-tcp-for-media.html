@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why WebRTC Prioritizes UDP Over TCP for Media - webrtc</title>
+    <meta name="description" content="WebRTC (Web Real-Time Communication) is designed to enable sub-second, real-time audio and video streaming directly between browsers. To achieve the ultra-low latency required for live conversation, WebRTC inherently favors User Datagram Protocol (UDP) o">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/why-web-rtc-prioritizes-udp-over-tcp-for-media">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Why WebRTC Prioritizes UDP Over TCP for Media - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/why-web-rtc-prioritizes-udp-over-tcp-for-media" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="WebRTC (Web Real-Time Communication) is designed to enable sub-second, real-time audio and video streaming directly between browsers. To achieve the ultra-low latency required for live conversation, WebRTC inherently favors User Datagram Protocol (UDP) o" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="why-webrtc-prioritizes-udp-over-tcp-for-media">Why WebRTC
+Prioritizes UDP Over TCP for Media</h1>
+<p>WebRTC (Web Real-Time Communication) is designed to enable
+sub-second, real-time audio and video streaming directly between
+browsers. To achieve the ultra-low latency required for live
+conversation, WebRTC inherently favors User Datagram Protocol (UDP) over
+Transmission Control Protocol (TCP) for media transport. This article
+explains the technical reasons why UDP is the ideal choice for real-time
+media and why TCP's design is fundamentally incompatible with live
+streaming.</p>
+<h2 id="the-need-for-speed-latency-vs-reliability">The Need for Speed:
+Latency vs. Reliability</h2>
+<p>In real-time communication, latency is the single most critical
+factor. For a natural conversation, end-to-end latency must remain below
+200 milliseconds.</p>
+<p>TCP is designed for absolute reliability. It guarantees that every
+packet of data arrives in the exact order it was sent. If a packet is
+lost during transit, TCP pauses the entire data stream and waits for the
+missing packet to be retransmitted—a phenomenon known as head-of-line
+blocking. For web browsing or file downloads, this delay is acceptable.
+For a live video call, however, waiting even half a second for a
+retransmitted packet causes the video to freeze and audio to drop,
+ruining the real-time experience.</p>
+<h2 id="why-udp-fits-real-time-media">Why UDP Fits Real-Time Media</h2>
+<p>UDP operates on a "fire-and-forget" model. It sends packets to the
+destination without establishing a formal connection, waiting for
+acknowledgments, or retransmitting lost packets. This connectionless
+nature makes UDP significantly faster and more lightweight than TCP.</p>
+<ul>
+<li><strong>No Retransmission Delays:</strong> If a packet is lost in a
+UDP stream, WebRTC simply skips it. A temporary drop in audio or video
+quality is barely noticeable to a human user, whereas a freeze caused by
+TCP retransmission is highly disruptive. In WebRTC, old data is useless
+data.</li>
+<li><strong>No Head-of-Line Blocking:</strong> Because UDP does not
+enforce packet ordering at the transport layer, a delayed or lost packet
+does not stop subsequent packets from being processed immediately.</li>
+<li><strong>Lower Overhead:</strong> UDP headers are much smaller than
+TCP headers (8 bytes versus 20 bytes), reducing the bandwidth overhead
+for every packet sent.</li>
+</ul>
+<h2 id="intelligent-application-layer-control">Intelligent
+Application-Layer Control</h2>
+<p>By choosing UDP, WebRTC shifts the responsibility of managing network
+conditions from the operating system's network stack (where TCP
+operates) to the application layer. WebRTC implements sophisticated
+algorithms to handle network issues without sacrificing latency:</p>
+<ul>
+<li><strong>Real-time Transport Control Protocol (RTCP):</strong> WebRTC
+uses RTCP to monitor network statistics, such as jitter, packet loss,
+and round-trip time.</li>
+<li><strong>Bandwidth Estimation and Congestion Control:</strong>
+Instead of TCP's aggressive throttling, WebRTC uses algorithms like
+Google Congestion Control (GCC) to dynamically adjust video resolution
+and bitrate based on real-time network conditions.</li>
+<li><strong>Packet Loss Concealment (PLC):</strong> WebRTC codecs (such
+as Opus for audio) can reconstruct missing audio packets using
+predictive algorithms, ensuring smooth audio even on lossy
+networks.</li>
+</ul>
+<h2 id="the-tcp-fallback-ice-and-turn">The TCP Fallback: ICE and
+TURN</h2>
+<p>While UDP is the prioritized transport protocol, WebRTC requires a
+fallback mechanism to ensure connections can still be made behind
+restrictive corporate firewalls or NATs that block UDP traffic.</p>
+<p>WebRTC utilizes the Interactive Connectivity Establishment (ICE)
+framework to find the best connection path. If a direct UDP connection
+is impossible, WebRTC will attempt to route the media through a TURN
+(Traversal Using Relays around NAT) server using UDP. If that also
+fails, WebRTC will fall back to TCP, or TLS-encrypted TCP, as a last
+resort. While this fallback introduces higher latency, it ensures that a
+connection can always be established regardless of network
+restrictions.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

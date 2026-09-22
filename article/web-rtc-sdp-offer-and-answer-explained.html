@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC SDP Offer and Answer Explained - webrtc</title>
+    <meta name="description" content="This article provides a clear and concise explanation of Session Description Protocol (SDP) offers and answers within the context of WebRTC. It covers what these messages contain, how they are generated, and how they enable two browser peers to negotiate">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/web-rtc-sdp-offer-and-answer-explained">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="WebRTC SDP Offer and Answer Explained - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/web-rtc-sdp-offer-and-answer-explained" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article provides a clear and concise explanation of Session Description Protocol (SDP) offers and answers within the context of WebRTC. It covers what these messages contain, how they are generated, and how they enable two browser peers to negotiate" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="webrtc-sdp-offer-and-answer-explained">WebRTC SDP Offer and
+Answer Explained</h1>
+<p>This article provides a clear and concise explanation of Session
+Description Protocol (SDP) offers and answers within the context of
+WebRTC. It covers what these messages contain, how they are generated,
+and how they enable two browser peers to negotiate and establish a
+direct multimedia connection.</p>
+<h2 id="what-is-sdp-in-webrtc">What is SDP in WebRTC?</h2>
+<p>Before understanding offers and answers, it is essential to
+understand <strong>SDP (Session Description Protocol)</strong>. SDP is
+not a protocol used to transport media; instead, it is a standardized
+format (a plain text string of key-value pairs) used to describe the
+properties of a multimedia session.</p>
+<p>In WebRTC, peers must agree on how to share data, video, and audio.
+SDP acts as the contract that defines these technical parameters. The
+negotiation of this contract follows the <strong>Offer/Answer
+model</strong>.</p>
+<hr />
+<h2 id="the-sdp-offer">The SDP Offer</h2>
+<p>An <strong>SDP Offer</strong> is the initial proposal sent by the
+initiating peer (the "caller") to start a WebRTC session. It details
+what the caller is capable of sending and receiving.</p>
+<h3 id="what-an-sdp-offer-contains">What an SDP Offer Contains:</h3>
+<ul>
+<li><strong>Media Types:</strong> Specifies whether the caller wants to
+send/receive audio, video, or data channels.</li>
+<li><strong>Codecs:</strong> A prioritized list of audio and video
+compression formats (e.g., VP8, VP9, H.264 for video; Opus for audio)
+that the caller's device supports.</li>
+<li><strong>Network Parameters (ICE Candidates):</strong> Information
+regarding IP addresses, ports, and protocols (UDP/TCP) where the caller
+can receive media.</li>
+<li><strong>Security Settings:</strong> Cryptographic fingerprints
+(DTLS/SRTP parameters) to ensure the media stream will be encrypted and
+secure.</li>
+<li><strong>Directionality Attributes:</strong> Indicates how the caller
+wants to handle media, such as <code>sendrecv</code> (send and receive),
+<code>sendonly</code>, or <code>recvonly</code>.</li>
+</ul>
+<hr />
+<h2 id="the-sdp-answer">The SDP Answer</h2>
+<p>An <strong>SDP Answer</strong> is the response generated by the
+receiving peer (the "callee") after receiving and processing the SDP
+Offer. It completes the negotiation by agreeing to, rejecting, or
+modifying the parameters proposed in the offer.</p>
+<h3 id="what-an-sdp-answer-contains">What an SDP Answer Contains:</h3>
+<ul>
+<li><strong>Matched Codecs:</strong> The receiver looks at the caller's
+codec list and selects the best mutually supported codecs. Any codecs
+the receiver does not support are stripped out.</li>
+<li><strong>Selected Media Streams:</strong> A confirmation of which
+proposed media streams (audio, video, data) the receiver agrees to
+establish.</li>
+<li><strong>Receiver's Network Parameters:</strong> The receiver’s own
+IP addresses, ports, and ICE candidates so the caller knows where to
+send its media.</li>
+<li><strong>Receiver's Security Settings:</strong> Cryptographic
+fingerprints generated by the receiver to establish the secure DTLS
+association.</li>
+<li><strong>Agreed Directionality:</strong> The final direction of the
+stream (e.g., if the caller offered <code>sendonly</code>, the receiver
+will answer with <code>recvonly</code>).</li>
+</ul>
+<hr />
+<h2 id="the-exchange-workflow-signaling">The Exchange Workflow
+(Signaling)</h2>
+<p>To establish a connection, the SDP offer and answer must be exchanged
+through an external mechanism called a <strong>signaling server</strong>
+(typically using WebSockets, HTTP, or MQTT). The browser APIs handle
+this exchange using the following steps:</p>
+<ol type="1">
+<li><strong>Caller</strong> creates an offer by calling
+<code>peerConnection.createOffer()</code>.</li>
+<li><strong>Caller</strong> sets this description as its local
+configuration using
+<code>peerConnection.setLocalDescription(offer)</code>.</li>
+<li><strong>Caller</strong> sends the SDP Offer to the Callee via the
+signaling server.</li>
+<li><strong>Callee</strong> receives the offer and sets it as its remote
+configuration using
+<code>peerConnection.setRemoteDescription(offer)</code>.</li>
+<li><strong>Callee</strong> creates an answer by calling
+<code>peerConnection.createAnswer()</code>.</li>
+<li><strong>Callee</strong> sets this answer as its local configuration
+using <code>peerConnection.setLocalDescription(answer)</code>.</li>
+<li><strong>Callee</strong> sends the SDP Answer back to the Caller via
+the signaling server.</li>
+<li><strong>Caller</strong> receives the answer and sets it as its
+remote configuration using
+<code>peerConnection.setRemoteDescription(answer)</code>.</li>
+</ol>
+<p>Once both peers have set their respective local and remote
+descriptions, the SDP negotiation is complete, and the peers can begin
+direct media transmission.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

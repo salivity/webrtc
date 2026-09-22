@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How WebRTC Handles Packet Loss and Network Jitter - webrtc</title>
+    <meta name="description" content="Real-time communication over the internet faces constant challenges from unstable network conditions, particularly packet loss and arrival delays known as jitter. WebRTC (Web Real-Time Communication) maintains smooth audio and video streams under these c">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/how-web-rtc-handles-packet-loss-and-network-jitter">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How WebRTC Handles Packet Loss and Network Jitter - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/how-web-rtc-handles-packet-loss-and-network-jitter" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Real-time communication over the internet faces constant challenges from unstable network conditions, particularly packet loss and arrival delays known as jitter. WebRTC (Web Real-Time Communication) maintains smooth audio and video streams under these c" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-webrtc-handles-packet-loss-and-network-jitter">How WebRTC
+Handles Packet Loss and Network Jitter</h1>
+<p>Real-time communication over the internet faces constant challenges
+from unstable network conditions, particularly packet loss and arrival
+delays known as jitter. WebRTC (Web Real-Time Communication) maintains
+smooth audio and video streams under these conditions by employing a
+combination of adaptive jitter buffering, error correction techniques,
+packet retransmission, and dynamic bitrate adaptation. This article
+explains the core mechanisms WebRTC uses to gracefully mitigate these
+network anomalies and ensure a high-quality user experience.</p>
+<h2 id="managing-jitter-with-adaptive-jitter-buffers">Managing Jitter
+with Adaptive Jitter Buffers</h2>
+<p>Network jitter occurs when data packets take different amounts of
+time to travel across the network, arriving at the destination out of
+order or with irregular spacing. To prevent choppy audio and stuttering
+video, WebRTC implements an <strong>Adaptive Jitter Buffer</strong>.</p>
+<p>The jitter buffer acts as a temporary holding area for incoming
+packets. Instead of playing packets immediately upon arrival, WebRTC
+buffers them slightly to reorder them and ensure a continuous, steady
+playback stream. The buffer is "adaptive" because it continuously
+monitors network latency:</p>
+<ul>
+<li><strong>When jitter is low:</strong> The buffer shrinks to minimize
+end-to-end latency.</li>
+<li><strong>When jitter is high:</strong> The buffer automatically
+expands, sacrificing a small amount of latency to prevent playback gaps
+and audio dropouts.</li>
+</ul>
+<h2 id="combating-packet-loss">Combating Packet Loss</h2>
+<p>When packets are entirely lost in transit, WebRTC uses three primary
+strategies to recover the missing data: Forward Error Correction (FEC),
+Negative Acknowledgment (NACK), and Packet Retransmission (RTX).</p>
+<h3 id="1-forward-error-correction-fec">1. Forward Error Correction
+(FEC)</h3>
+<p>With FEC, the sender transmits redundant error-correction data
+alongside the media packets. If a packet is lost, the receiver can use
+this redundant data to reconstruct the missing packet mathematically,
+without needing to request it again from the sender. This is highly
+effective for networks with high round-trip times (RTT), as it corrects
+loss instantly at the cost of slightly higher bandwidth usage. WebRTC
+frequently uses the Opus codec’s in-band FEC for audio.</p>
+<h3 id="2-negative-acknowledgment-nack">2. Negative Acknowledgment
+(NACK)</h3>
+<p>Unlike TCP, which requires acknowledgment (ACK) for every received
+packet, WebRTC’s underlying transport protocol uses Negative
+Acknowledgment (NACK). When the receiver notices a gap in the sequence
+numbers of incoming packets, it sends a NACK message back to the sender,
+specifying exactly which packets are missing.</p>
+<h3 id="3-retransmission-rtx">3. Retransmission (RTX)</h3>
+<p>Upon receiving a NACK, the sender retransmits the missing packets. To
+prevent these retransmissions from interfering with congestion control
+calculations, WebRTC sends retransmitted packets over a dedicated
+secondary stream known as RTX (Retransmission). NACK and RTX are ideal
+for low-latency networks where the round-trip time is short enough to
+fetch the lost packet before its scheduled playback time.</p>
+<h2 id="dynamic-bandwidth-and-congestion-control">Dynamic Bandwidth and
+Congestion Control</h2>
+<p>To prevent packet loss and jitter from happening in the first place,
+WebRTC actively manages network congestion. If a sender pushes more data
+than the network pipe can handle, routers queue and eventually drop
+packets.</p>
+<p>WebRTC uses algorithms like <strong>Google Congestion Control
+(GCC)</strong> to estimate available bandwidth in real time. It analyzes
+packet arrival times and loss rates:</p>
+<ul>
+<li><strong>Sender-side adaptation:</strong> If congestion is detected,
+WebRTC instructs the media encoders to lower the bitrate. This is
+achieved by dynamically reducing the video resolution, lowering the
+frame rate, or compressing the audio further.</li>
+<li><strong>Recovery:</strong> Once network conditions stabilize, WebRTC
+gradually scales the bitrate back up to restore maximum quality.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

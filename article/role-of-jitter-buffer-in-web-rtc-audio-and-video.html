@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Role of Jitter Buffer in WebRTC Audio and Video - webrtc</title>
+    <meta name="description" content="This article explains the critical function of a jitter buffer within the WebRTC audio and video receiving pipeline. It explores how this component combats network instability by collecting, reordering, and smoothing out the delivery of media packets, ul">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/role-of-jitter-buffer-in-web-rtc-audio-and-video">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Role of Jitter Buffer in WebRTC Audio and Video - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/role-of-jitter-buffer-in-web-rtc-audio-and-video" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explains the critical function of a jitter buffer within the WebRTC audio and video receiving pipeline. It explores how this component combats network instability by collecting, reordering, and smoothing out the delivery of media packets, ul" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="role-of-jitter-buffer-in-webrtc-audio-and-video">Role of Jitter
+Buffer in WebRTC Audio and Video</h1>
+<p>This article explains the critical function of a jitter buffer within
+the WebRTC audio and video receiving pipeline. It explores how this
+component combats network instability by collecting, reordering, and
+smoothing out the delivery of media packets, ultimately ensuring a
+seamless and high-quality real-time communication experience.</p>
+<h2 id="understanding-network-jitter">Understanding Network Jitter</h2>
+<p>In real-time communications over the internet, audio and video data
+are broken down into small packets and sent across the network. Because
+of network congestion, routing changes, or queuing delays, these packets
+rarely arrive at a constant rate. Some packets arrive too early, some
+arrive too late, and others arrive out of order.</p>
+<p>This variation in packet arrival time is known as network jitter.
+Without intervention, jitter causes audio to sound choppy, robotic, or
+broken, and video to stutter, drop frames, or freeze.</p>
+<h2 id="the-role-of-the-jitter-buffer">The Role of the Jitter
+Buffer</h2>
+<p>The jitter buffer is a specialized storage area in the WebRTC
+receiving pipeline designed to counteract network jitter. It acts as a
+temporary holding zone for incoming media packets before they are
+decoded and rendered to the user.</p>
+<p>The primary functions of the jitter buffer in WebRTC include:</p>
+<h3 id="1-reordering-out-of-order-packets">1. Reordering Out-of-Order
+Packets</h3>
+<p>IP packets do not always take the same path through the internet.
+Consequently, packet 3 might arrive before packet 2. The jitter buffer
+uses the sequence numbers embedded in the Real-time Transport Protocol
+(RTP) headers to rearrange the packets into their correct chronological
+order before passing them to the decoder.</p>
+<h3 id="2-smoothing-out-playout-timing">2. Smoothing Out Playout
+Timing</h3>
+<p>Instead of playing packets immediately upon arrival—which would
+result in jerky playback—the jitter buffer holds packets for a tiny
+fraction of a second. This intentional delay allows the receiving
+pipeline to release the audio and video frames at a steady, continuous
+pace, masking the timing variations introduced by the network.</p>
+<h3 id="3-handling-late-packets-and-packet-loss">3. Handling Late
+Packets and Packet Loss</h3>
+<p>If a packet is delayed too long, the jitter buffer must decide
+whether to wait for it or proceed with decoding. If a packet is deemed
+lost or too late, the WebRTC pipeline initiates recovery mechanisms,
+such as requesting a retransmission via NACK (Negative Acknowledgment)
+or using Packet Loss Concealment (PLC) to fill in the missing audio
+gap.</p>
+<h2 id="the-webrtc-adaptive-jitter-buffer">The WebRTC Adaptive Jitter
+Buffer</h2>
+<p>WebRTC does not use a static, fixed-size jitter buffer. A fixed
+buffer would either introduce too much delay (if too large) or fail to
+smooth out spikes in jitter (if too small).</p>
+<p>Instead, WebRTC implements an <strong>adaptive jitter
+buffer</strong>. It continuously monitors network conditions, measuring
+the average delay and packet arrival variance.</p>
+<ul>
+<li><strong>When the network is stable:</strong> The buffer
+automatically shrinks to minimize latency, keeping the conversation as
+close to real-time as possible.</li>
+<li><strong>When the network becomes unstable:</strong> The buffer
+dynamically expands to prevent packet drops and audio clipping,
+prioritizing call quality over ultra-low latency.</li>
+</ul>
+<p>By dynamically balancing the trade-off between low latency and smooth
+playback, the adaptive jitter buffer serves as one of the most vital
+components for maintaining a reliable user experience in WebRTC
+applications.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

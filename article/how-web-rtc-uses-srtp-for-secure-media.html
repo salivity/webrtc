@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How WebRTC Uses SRTP for Secure Media - webrtc</title>
+    <meta name="description" content="WebRTC (Web Real-Time Communication) relies on the Secure Real-time Transport Protocol (SRTP) to ensure that audio and video streams transmitted between peers remain private and secure. This article explores how WebRTC integrates SRTP, the cryptographic">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/how-web-rtc-uses-srtp-for-secure-media">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="How WebRTC Uses SRTP for Secure Media - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/how-web-rtc-uses-srtp-for-secure-media" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="WebRTC (Web Real-Time Communication) relies on the Secure Real-time Transport Protocol (SRTP) to ensure that audio and video streams transmitted between peers remain private and secure. This article explores how WebRTC integrates SRTP, the cryptographic" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="how-webrtc-uses-srtp-for-secure-media">How WebRTC Uses SRTP for
+Secure Media</h1>
+<p>WebRTC (Web Real-Time Communication) relies on the Secure Real-time
+Transport Protocol (SRTP) to ensure that audio and video streams
+transmitted between peers remain private and secure. This article
+explores how WebRTC integrates SRTP, the cryptographic mechanisms behind
+it, and why this protocol is essential for preventing eavesdropping and
+tampering during real-time communication.</p>
+<h2 id="what-is-srtp">What is SRTP?</h2>
+<p>The Real-time Transport Protocol (RTP) is the standard format for
+delivering audio and video over IP networks. However, standard RTP does
+not have built-in security features. SRTP is a security profile that
+extends RTP to provide:</p>
+<ul>
+<li><strong>Encryption:</strong> Scrambles the media payload so that
+only authorized recipients can decode it.</li>
+<li><strong>Authentication:</strong> Verifies that the media packets
+actually originated from the claimed sender.</li>
+<li><strong>Integrity:</strong> Ensures the media packets have not been
+altered or tampered with during transit.</li>
+<li><strong>Replay Protection:</strong> Prevents attackers from
+intercepting and re-sending packets to disrupt the stream.</li>
+</ul>
+<p>WebRTC mandates the use of SRTP for all media streams. Unencrypted
+RTP is not permitted in the WebRTC specification.</p>
+<h2 id="key-exchange-via-dtls-srtp">Key Exchange via DTLS-SRTP</h2>
+<p>Before SRTP can encrypt media, the two connecting peers must securely
+agree on encryption keys without exposing them to intermediaries. WebRTC
+accomplishes this using Datagram Transport Layer Security (DTLS).</p>
+<p>The process, known as DTLS-SRTP, operates in the following
+sequence:</p>
+<ol type="1">
+<li><strong>Connection Establishment:</strong> The peers use ICE
+(Interactive Connectivity Establishment) to find a direct network path
+and establish a connection.</li>
+<li><strong>DTLS Handshake:</strong> Once connected, the peers perform a
+DTLS handshake over the established data path. This handshake allows the
+peers to authenticate each other using self-signed certificates (which
+are validated against fingerprints exchanged earlier in the Session
+Description Protocol (SDP) signaling).</li>
+<li><strong>Key Derivation:</strong> During the DTLS handshake, the
+peers negotiate cryptographic algorithms and generate a shared master
+secret. This secret is used to derive the encryption and authentication
+keys specifically for the SRTP media session.</li>
+</ol>
+<p>By using DTLS to generate the keys, WebRTC ensures that key exchange
+happens directly between the peers (end-to-end), preventing signaling
+servers from accessing the media keys.</p>
+<h2 id="how-srtp-secures-media-packets">How SRTP Secures Media
+Packets</h2>
+<p>Once the keys are established, the WebRTC media engine processes
+outgoing media through the SRTP layer.</p>
+<h3 id="1-selective-encryption">1. Selective Encryption</h3>
+<p>SRTP does not encrypt the entire packet. It encrypts only the RTP
+payload (the actual video or audio data). The RTP header—which contains
+routing information like sequence numbers, timestamps, and payload
+types—remains unencrypted. This allows network routers to prioritize and
+route the packets efficiently without needing to decrypt the media
+content.</p>
+<h3 id="2-message-authentication-and-integrity">2. Message
+Authentication and Integrity</h3>
+<p>To prevent tampering, SRTP appends a Cryptographic Message
+Authentication Code (HMAC) to the end of each packet. WebRTC commonly
+uses algorithms like HMAC-SHA1 or AEAD (Authenticated Encryption with
+Associated Data) ciphers like AES-GCM. The receiver uses this code to
+verify that the packet header and encrypted payload have not been
+modified since they were sent.</p>
+<h3 id="3-replay-protection">3. Replay Protection</h3>
+<p>SRTP maintains a "sliding window" index of recently received packet
+sequence numbers. If an attacker captures an SRTP packet and attempts to
+inject it back into the stream later, the receiver detects the duplicate
+sequence number and immediately discards the packet.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>WebRTC utilizes SRTP to guarantee end-to-end security for real-time
+media. By combining DTLS for secure peer-to-peer key exchange with SRTP
+for low-latency media encryption, authentication, and replay protection,
+WebRTC ensures that web-based voice and video communications remain
+private, secure, and tamper-proof.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

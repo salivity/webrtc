@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC SFU vs MCU: Key Differences Explained - webrtc</title>
+    <meta name="description" content="Multi-party video conferencing in WebRTC relies on different backend architectures to connect multiple participants. This article explains the fundamental differences between a Selective Forwarding Unit (SFU) and a Multipoint Control Unit (MCU), focusing">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/web-rtc-sfu-vs-mcu-key-differences-explained">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="WebRTC SFU vs MCU: Key Differences Explained - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/web-rtc-sfu-vs-mcu-key-differences-explained" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Multi-party video conferencing in WebRTC relies on different backend architectures to connect multiple participants. This article explains the fundamental differences between a Selective Forwarding Unit (SFU) and a Multipoint Control Unit (MCU), focusing" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="webrtc-sfu-vs-mcu-key-differences-explained">WebRTC SFU vs MCU:
+Key Differences Explained</h1>
+<p>Multi-party video conferencing in WebRTC relies on different backend
+architectures to connect multiple participants. This article explains
+the fundamental differences between a Selective Forwarding Unit (SFU)
+and a Multipoint Control Unit (MCU), focusing on how they handle media
+routing, server CPU utilization, bandwidth consumption, and client-side
+processing.</p>
+<h2 id="the-core-architectural-difference">The Core Architectural
+Difference</h2>
+<p>The fundamental difference lies in how these two systems handle media
+streams.</p>
+<p>An <strong>MCU (Multipoint Control Unit)</strong> acts as a
+centralized mixer. It receives audio and video streams from all
+participants, decodes them, mixes them into a single customized video
+grid and audio stream, encodes this new stream, and sends it back to
+each participant.</p>
+<p>An <strong>SFU (Selective Forwarding Unit)</strong> acts as a media
+router. It receives media streams from all participants and forwards
+them to the other participants without decoding, mixing, or re-encoding
+them. The server simply decides which packets go to which
+destination.</p>
+<h2 id="server-side-cpu-and-scalability">Server-Side CPU and
+Scalability</h2>
+<p>Because an MCU must decode, composite, and re-encode video streams
+for every participant, it requires immense server-side CPU processing
+power. This computational overhead strictly limits the number of
+concurrent users an MCU server can support, making it highly expensive
+to scale.</p>
+<p>Conversely, an SFU does not perform media transcoding. Because it
+merely routes network packets, its server-side CPU utilization is
+extremely low. A single SFU server can handle thousands of concurrent
+streams, making it highly scalable and cost-effective.</p>
+<h2 id="bandwidth-and-client-side-processing">Bandwidth and Client-Side
+Processing</h2>
+<p>The trade-off for the SFU’s server-side efficiency is shifted to the
+client devices and network connections.</p>
+<ul>
+<li><strong>Downlink Bandwidth:</strong> In an MCU architecture, each
+client only downloads a single incoming stream (the mixed layout). In an
+SFU architecture, if there are <span class="math inline">\(N\)</span>
+participants, each client must download <span
+class="math inline">\(N-1\)</span> individual video streams, requiring
+significantly higher downlink bandwidth.</li>
+<li><strong>Client-Side CPU:</strong> An MCU client only decodes a
+single video stream, resulting in low CPU usage on user devices. An SFU
+client must decode multiple incoming video streams simultaneously, which
+can drain battery life and strain CPU resources on older or mobile
+devices.</li>
+</ul>
+<h2 id="layout-flexibility-and-customization">Layout Flexibility and
+Customization</h2>
+<p>With an MCU, the video layout (e.g., active speaker, grid view) is
+decided and rendered by the server. Users have limited control over how
+they view other participants because everyone receives the same
+pre-mixed video feed.</p>
+<p>With an SFU, because the client receives all individual streams
+separately, the client-side application has complete control over the
+layout. Users can customize their user interface dynamically—such as
+pinning specific speakers, resizing windows, or filtering video
+feeds—without impacting other participants.</p>
+<h2 id="latency">Latency</h2>
+<p>The heavy processing required by MCUs to decode, mix, and encode
+media streams introduces noticeable latency into the conversation. SFUs,
+by avoiding the transcoding pipeline altogether, route packets almost
+instantaneously, resulting in much lower latency and a more natural
+conversational flow.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

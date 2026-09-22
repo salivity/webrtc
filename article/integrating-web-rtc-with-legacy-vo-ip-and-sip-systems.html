@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrating WebRTC with Legacy VoIP and SIP Systems - webrtc</title>
+    <meta name="description" content="This article explains how modern WebRTC technology successfully integrates with traditional Session Initiation Protocol (SIP) and legacy Voice over IP (VoIP) systems. It details the critical role of media and signaling gateways, Session Border Controller">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/integrating-web-rtc-with-legacy-vo-ip-and-sip-systems">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Integrating WebRTC with Legacy VoIP and SIP Systems - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/integrating-web-rtc-with-legacy-vo-ip-and-sip-systems" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article explains how modern WebRTC technology successfully integrates with traditional Session Initiation Protocol (SIP) and legacy Voice over IP (VoIP) systems. It details the critical role of media and signaling gateways, Session Border Controller" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="integrating-webrtc-with-legacy-voip-and-sip-systems">Integrating
+WebRTC with Legacy VoIP and SIP Systems</h1>
+<p>This article explains how modern WebRTC technology successfully
+integrates with traditional Session Initiation Protocol (SIP) and legacy
+Voice over IP (VoIP) systems. It details the critical role of media and
+signaling gateways, Session Border Controllers (SBCs), and transcoding
+processes required to bridge browser-based communications with
+established enterprise telephony infrastructures.</p>
+<h2 id="the-integration-challenge-webrtc-vs-sip">The Integration
+Challenge: WebRTC vs. SIP</h2>
+<p>WebRTC (Web Real-Time Communication) and traditional SIP-based VoIP
+systems were designed for different eras. WebRTC is built natively into
+modern web browsers, enabling real-time audio, video, and data sharing
+without plugins. It relies on secure, web-friendly protocols like
+WebSockets for signaling, DTLS-SRTP for encryption, and modern codecs
+like Opus and VP8.</p>
+<p>In contrast, traditional VoIP systems rely on the SIP standard for
+session management, typically running over UDP or TCP. These legacy
+systems often use different codecs (such as G.711 or G.729), may not
+mandate encryption, and generally cannot communicate directly with a web
+browser. Integrating the two requires translating protocols, security
+mechanisms, and media formats.</p>
+<h2 id="the-role-of-the-webrtc-to-sip-gateway">The Role of the
+WebRTC-to-SIP Gateway</h2>
+<p>The cornerstone of WebRTC and SIP integration is the gateway. A
+WebRTC-to-SIP gateway (often implemented within a Session Border
+Controller, or SBC) acts as a translator between the browser-based
+WebRTC client and the legacy SIP server or PBX (Private Branch
+Exchange).</p>
+<h3 id="1-signaling-translation">1. Signaling Translation</h3>
+<p>WebRTC does not define a specific signaling protocol; it provides the
+media engine and APIs, leaving the signaling mechanism up to the
+developer. Most WebRTC applications use WebSockets to transmit signaling
+data in JSON format.</p>
+<p>The gateway receives these WebSocket messages from the browser and
+translates them into standard SIP messages (such as INVITE, BYE, and
+ACK) that the legacy VoIP infrastructure can process. Conversely, it
+translates incoming SIP signals back into WebSocket messages for the
+browser.</p>
+<h3 id="2-media-transcoding">2. Media Transcoding</h3>
+<p>WebRTC and legacy VoIP systems often use different audio and video
+codecs. WebRTC mandates the use of highly resilient codecs like Opus
+(for audio) and VP8/H.264 (for video). Legacy SIP systems frequently use
+older codecs like G.711 or G.729.</p>
+<p>The gateway performs real-time media transcoding, converting the
+audio and video streams on the fly. For example, it will transcode an
+incoming Opus stream from a web browser into a G.711 stream before
+sending it to a traditional IP phone.</p>
+<h3 id="3-encryption-and-security-bridging">3. Encryption and Security
+Bridging</h3>
+<p>WebRTC strictly enforces encryption using Secure RTP (SRTP) and
+manages keys via DTLS (Datagram Transport Layer Security). Legacy SIP
+systems, however, often transmit unencrypted RTP or use different key
+exchange mechanisms like SDES.</p>
+<p>The gateway terminates the DTLS-SRTP session from the WebRTC client,
+decrypts the media, and then either re-encrypts it using the legacy
+system's preferred method (e.g., SDES-SRTP) or passes it as unencrypted
+RTP if the internal SIP network requires it.</p>
+<h2 id="network-traversal-stun-turn-and-ice">Network Traversal: STUN,
+TURN, and ICE</h2>
+<p>Legacy VoIP devices usually reside on fixed enterprise networks with
+static configurations. WebRTC clients, however, operate on dynamic
+public networks, mobile connections, and behind restrictive
+firewalls.</p>
+<p>To establish a direct media path, WebRTC integration relies on ICE
+(Interactive Connectivity Establishment) frameworks, alongside STUN
+(Session Traversal Utilities for NAT) and TURN (Traversal Using Relays
+around NAT) servers. These protocols allow WebRTC clients behind
+firewalls to discover their public IP addresses and establish secure
+media paths to the SIP gateway.</p>
+<h2 id="enterprise-benefits-of-integration">Enterprise Benefits of
+Integration</h2>
+<p>Integrating WebRTC with legacy SIP systems allows organizations to
+modernize their communications without abandoning their existing
+infrastructure investments. It enables "click-to-call" functionality
+directly from corporate websites or customer portals, routing those
+calls directly into existing call center queues and SIP-based PBXs. This
+hybrid approach extends the lifecycle of legacy hardware while
+introducing modern, browser-based accessibility to users and
+customers.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

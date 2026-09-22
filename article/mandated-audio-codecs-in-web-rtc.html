@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mandated Audio Codecs in WebRTC - webrtc</title>
+    <meta name="description" content="This article provides a clear overview of the audio codecs that are natively supported and mandated by the WebRTC (Web Real-Time Communication) specification. To ensure seamless, cross-browser interoperability without requiring external plugins, the Inte">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/mandated-audio-codecs-in-web-rtc">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Mandated Audio Codecs in WebRTC - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/mandated-audio-codecs-in-web-rtc" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="This article provides a clear overview of the audio codecs that are natively supported and mandated by the WebRTC (Web Real-Time Communication) specification. To ensure seamless, cross-browser interoperability without requiring external plugins, the Inte" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="mandated-audio-codecs-in-webrtc">Mandated Audio Codecs in
+WebRTC</h1>
+<p>This article provides a clear overview of the audio codecs that are
+natively supported and mandated by the WebRTC (Web Real-Time
+Communication) specification. To ensure seamless, cross-browser
+interoperability without requiring external plugins, the Internet
+Engineering Task Force (IETF) has established strict baseline
+requirements for audio codecs that every WebRTC-compliant browser and
+device must implement.</p>
+<p>According to RFC 7874, there are two primary audio codecs mandated
+for all WebRTC endpoints: <strong>Opus</strong> and
+<strong>G.711</strong>.</p>
+<h3 id="1-opus-the-default-standard">1. Opus (The Default Standard)</h3>
+<p>Opus is the primary, default audio codec for WebRTC. It is a highly
+versatile, open-source, and royalty-free codec designed specifically for
+interactive speech and music transmission over the internet.</p>
+<ul>
+<li><strong>Adaptability:</strong> Opus can seamlessly adapt to varying
+network conditions. It supports both constant bitrate (CBR) and variable
+bitrate (VBR) encoding from 6 kbps to 510 kbps.</li>
+<li><strong>Audio Quality:</strong> It handles everything from
+low-bandwidth narrowband voice (8 kHz) to high-fidelity fullband stereo
+audio (48 kHz).</li>
+<li><strong>Latency and Robustness:</strong> Opus features very low
+algorithmic delay (typically 20 ms) and built-in forward error
+correction (FEC) to mitigate packet loss over unstable networks.</li>
+</ul>
+<h3 id="2-g711-legacy-compatibility">2. G.711 (Legacy
+Compatibility)</h3>
+<p>G.711 is a legacy, narrowband waveform audio codec operating at 64
+kbps. The WebRTC specification mandates support for both of its primary
+companding algorithms:</p>
+<ul>
+<li><strong>PCMU (µ-law):</strong> Primarily used in North America and
+Japan.</li>
+<li><strong>PCMA (A-law):</strong> Primarily used in Europe and the rest
+of the world.</li>
+</ul>
+<p>While G.711 offers lower audio quality compared to Opus, its
+inclusion is mandatory to guarantee backward compatibility with the
+Public Switched Telephone Network (PSTN) and legacy Voice over IP (VoIP)
+systems.</p>
+<h3 id="additional-requirements">Additional Requirements</h3>
+<p>In addition to Opus and G.711, the WebRTC specification requires
+endpoints to support:</p>
+<ul>
+<li><strong>DTMF (Dual-Tone Multi-Frequency):</strong> Mandated via RFC
+4733 tones for touch-tone telephone interaction.</li>
+<li><strong>Comfort Noise (CN):</strong> Mandated via RFC 3389 to
+generate artificial background noise during silence suppression,
+ensuring users do not think the call has dropped.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

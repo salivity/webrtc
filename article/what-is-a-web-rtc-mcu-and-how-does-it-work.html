@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What is a WebRTC MCU and How Does It Work - webrtc</title>
+    <meta name="description" content="In multi-party video conferencing, managing multiple media streams efficiently is crucial for a smooth user experience. This article explains what a WebRTC Multipoint Control Unit (MCU) is, how it functions as a centralized media server, and details the">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/what-is-a-web-rtc-mcu-and-how-does-it-work">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="What is a WebRTC MCU and How Does It Work - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/what-is-a-web-rtc-mcu-and-how-does-it-work" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="In multi-party video conferencing, managing multiple media streams efficiently is crucial for a smooth user experience. This article explains what a WebRTC Multipoint Control Unit (MCU) is, how it functions as a centralized media server, and details the" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="what-is-a-webrtc-mcu-and-how-does-it-work">What is a WebRTC MCU
+and How Does It Work</h1>
+<p>In multi-party video conferencing, managing multiple media streams
+efficiently is crucial for a smooth user experience. This article
+explains what a WebRTC Multipoint Control Unit (MCU) is, how it
+functions as a centralized media server, and details the step-by-step
+process of how it receives, decodes, mixes, and redistributes incoming
+audio and video streams to optimize bandwidth for end-users.</p>
+<h2 id="understanding-the-webrtc-mcu">Understanding the WebRTC MCU</h2>
+<p>A Multipoint Control Unit (MCU) is a centralized server architecture
+used in WebRTC applications to facilitate group video and audio calls.
+Unlike a peer-to-peer (Mesh) setup where every participant connects
+directly to everyone else, or a Selective Forwarding Unit (SFU) which
+simply routes individual streams to each user, an MCU acts as a central
+processor.</p>
+<p>The primary job of an MCU is to collect media streams from all
+participants, process them into a single unified stream, and send that
+single stream back to each user. This significantly reduces the download
+bandwidth and processing power required by the participants' devices,
+making it ideal for large meetings or users with weak internet
+connections and low-spec hardware.</p>
+<h2 id="how-an-mcu-processes-incoming-media">How an MCU Processes
+Incoming Media</h2>
+<p>To deliver a single composite stream to each participant, an MCU must
+perform a resource-intensive sequence of media processing steps. Here is
+how the process works from the moment media leaves a user's device to
+when it returns.</p>
+<h3 id="1-receiving-the-streams">1. Receiving the Streams</h3>
+<p>Each participant in the call encodes their local camera feed and
+microphone input and sends this single upstream connection to the MCU.
+The MCU establishes secure WebRTC peer connections with each client to
+receive these incoming encrypted media packets.</p>
+<h3 id="2-decoding-the-media">2. Decoding the Media</h3>
+<p>Because video and audio are compressed using codecs (such as VP8,
+H.264, or AV1 for video, and Opus for audio) to travel efficiently over
+the internet, the MCU cannot manipulate them in their transit state. The
+MCU must first decrypt the packets and fully decode the compressed
+incoming video and audio streams back into raw, uncompressed frames and
+audio buffers.</p>
+<h3 id="3-mixing-and-compositing">3. Mixing and Compositing</h3>
+<p>Once the media is decoded into raw data, the MCU performs the mixing
+process:</p>
+<ul>
+<li><strong>Video Compositing:</strong> The server takes the individual
+raw video frames from all participants and arranges them into a single,
+unified video frame layout (such as a grid or an active-speaker
+layout).</li>
+<li><strong>Audio Mixing:</strong> The server mixes the raw audio
+signals from all participants into a single audio track. To prevent
+echo, the MCU typically generates custom audio mixes for each
+participant, ensuring users do not hear their own voices delayed back to
+them (a technique known as "mix-minus").</li>
+</ul>
+<h3 id="4-re-encoding-the-media">4. Re-Encoding the Media</h3>
+<p>After creating the composite video layout and mixed audio track, the
+MCU must compress this raw data so it can be transmitted back over the
+network. The server encodes the combined video and audio back into a
+standard compressed format. Because different participants may have
+different network conditions, some advanced MCUs will encode the output
+into multiple bitrates or resolutions simultaneously.</p>
+<h3 id="5-distributing-the-output">5. Distributing the Output</h3>
+<p>Finally, the MCU sends the newly packaged, single downstream video
+and audio feed back to each participant. Because each client only has to
+download and decode one incoming stream, their CPU usage and bandwidth
+consumption remain low, regardless of whether there are three or thirty
+people in the call.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

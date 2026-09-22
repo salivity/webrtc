@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What is a WebRTC Gateway and Why Do Enterprises Need It? - webrtc</title>
+    <meta name="description" content="WebRTC has revolutionized real-time communication by enabling browsers to share audio, video, and data without plugins. However, integrating this browser-based technology with legacy enterprise communication systems requires a bridge. This article explai">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/what-is-a-web-rtc-gateway-and-why-do-enterprises-need-it">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="What is a WebRTC Gateway and Why Do Enterprises Need It? - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/what-is-a-web-rtc-gateway-and-why-do-enterprises-need-it" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="WebRTC has revolutionized real-time communication by enabling browsers to share audio, video, and data without plugins. However, integrating this browser-based technology with legacy enterprise communication systems requires a bridge. This article explai" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="what-is-a-webrtc-gateway-and-why-do-enterprises-need-it">What is
+a WebRTC Gateway and Why Do Enterprises Need It?</h1>
+<p>WebRTC has revolutionized real-time communication by enabling
+browsers to share audio, video, and data without plugins. However,
+integrating this browser-based technology with legacy enterprise
+communication systems requires a bridge. This article explains what a
+WebRTC gateway is, how it translates protocols to connect disparate
+networks, and highlights the key enterprise scenarios where implementing
+one is absolutely necessary for seamless business operations.</p>
+<h2 id="what-is-a-webrtc-gateway">What is a WebRTC Gateway?</h2>
+<p>A WebRTC gateway is a software-based translation engine that acts as
+a bridge between WebRTC-enabled web browsers and legacy communication
+infrastructures, such as Session Initiation Protocol (SIP) networks,
+Public Switched Telephone Networks (PSTN), or traditional H.323 video
+conferencing systems.</p>
+<p>WebRTC natively uses specific protocols for signaling (often
+WebSockets), security (DTLS-SRTP), and media encryption that are
+incompatible with traditional telecommunication systems. The gateway
+resolves this incompatibility by performing two critical translation
+tasks:</p>
+<ul>
+<li><strong>Signaling Translation:</strong> It translates WebRTC
+signaling messages (usually JSON-based over WebSockets) into standard
+SIP or H.323 signaling messages that enterprise PBX (Private Branch
+Exchange) systems can understand.</li>
+<li><strong>Media Transcoding:</strong> It converts audio and video
+streams in real-time. For example, it transcodes WebRTC media codecs
+(like Opus or VP8) into traditional telecom codecs (like G.711, G.729,
+or H.264), while also managing encryption and decryption between the
+browser and the enterprise network.</li>
+</ul>
+<hr />
+<h2
+id="enterprise-scenarios-where-a-webrtc-gateway-is-necessary">Enterprise
+Scenarios Where a WebRTC Gateway is Necessary</h2>
+<p>While modern web apps can communicate peer-to-peer using WebRTC,
+large enterprises require gateways to connect these web sessions to
+their existing corporate communication frameworks. Below are the primary
+scenarios where a WebRTC gateway is essential.</p>
+<h3
+id="1-connecting-web-based-customers-to-legacy-call-centers-click-to-call">1.
+Connecting Web-Based Customers to Legacy Call Centers
+(Click-to-Call)</h3>
+<p>Many enterprises want to embed "Click-to-Call" or video chat buttons
+directly into their websites or mobile apps so customers can reach
+support instantly. However, enterprise customer service agents usually
+work on traditional SIP-based call center software or physical IP
+phones.</p>
+<p>A WebRTC gateway is necessary here to convert the incoming
+browser-based call into a standard SIP call, routing the customer
+directly to the agent's existing queue without requiring the enterprise
+to replace its entire contact center infrastructure.</p>
+<h3
+id="2-integrating-browsers-with-internal-pbx-and-unified-communications">2.
+Integrating Browsers with Internal PBX and Unified Communications</h3>
+<p>Enterprises rely on Unified Communications (UC) platforms like Cisco,
+Avaya, or Mitel for internal telephony. To allow remote employees to
+make and receive corporate phone calls directly from their web browsers
+(without installing desktop clients or VPNs), a WebRTC gateway is
+required. The gateway registers the web browser as a standard SIP
+extension on the corporate PBX, allowing seamless calling between
+browsers, desk phones, and softphones.</p>
+<h3 id="3-bridging-web-users-into-legacy-video-conferencing-rooms">3.
+Bridging Web Users into Legacy Video Conferencing Rooms</h3>
+<p>Many enterprises have invested heavily in dedicated physical meeting
+room hardware (such as Cisco, Poly, or Lifesize systems) that use SIP or
+H.323 protocols. When external clients or remote workers try to join
+these meetings via a web link, they cannot connect directly. A WebRTC
+gateway acts as the intermediary, transcoding the browser's video stream
+so it can be displayed on the conference room screens, and vice
+versa.</p>
+<h3 id="4-connecting-webrtc-apps-to-the-pstn-standard-phone-numbers">4.
+Connecting WebRTC Apps to the PSTN (Standard Phone Numbers)</h3>
+<p>If a WebRTC-based application needs to dial a traditional landline or
+mobile phone number, or receive calls from one, it cannot do so
+directly. The call must go through a SIP trunk provider or a
+telecommunications carrier. A WebRTC gateway translates the browser's
+media and signaling into a format compatible with the PSTN-facing SIP
+trunk, enabling seamless calling to any phone number worldwide.</p>
+<h3 id="5-enforcing-enterprise-security-and-firewall-traversal">5.
+Enforcing Enterprise Security and Firewall Traversal</h3>
+<p>Enterprise firewalls are notoriously strict and often block the
+dynamic ports required for WebRTC peer-to-peer media streaming. A WebRTC
+gateway, often integrated with a Session Border Controller (SBC), serves
+as a secure, single point of entry into the corporate network. It
+handles NAT (Network Address Translation) traversal, normalizes traffic,
+and protects the internal network from external threats while ensuring
+high-quality media delivery.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

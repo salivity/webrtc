@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why WebRTC Relies on STUN Servers - webrtc</title>
+    <meta name="description" content="WebRTC enables real-time, peer-to-peer audio, video, and data streaming directly between web browsers without requiring third-party plugins. However, establishing a direct connection between two devices is often blocked by security barriers and local net">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/why-web-rtc-relies-on-stun-servers">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Why WebRTC Relies on STUN Servers - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/why-web-rtc-relies-on-stun-servers" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="WebRTC enables real-time, peer-to-peer audio, video, and data streaming directly between web browsers without requiring third-party plugins. However, establishing a direct connection between two devices is often blocked by security barriers and local net" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="why-webrtc-relies-on-stun-servers">Why WebRTC Relies on STUN
+Servers</h1>
+<p>WebRTC enables real-time, peer-to-peer audio, video, and data
+streaming directly between web browsers without requiring third-party
+plugins. However, establishing a direct connection between two devices
+is often blocked by security barriers and local network configurations.
+This article explains why WebRTC frequently relies on Session Traversal
+Utilities for NAT (STUN) servers to discover public IP addresses, bypass
+Network Address Translation (NAT), and facilitate seamless peer-to-peer
+communication.</p>
+<h2 id="overcoming-the-nat-barrier">Overcoming the NAT Barrier</h2>
+<p>Most internet-connected devices do not have a unique, public IP
+address. Instead, they sit behind a router or firewall that uses Network
+Address Translation (NAT). NAT assigns a single public IP address to an
+entire local network, translating it into private IP addresses (like
+<code>192.168.1.x</code>) for individual local devices.</p>
+<p>While NAT secures local networks and conserves IPv4 addresses, it
+poses a major challenge for WebRTC. If two devices want to connect
+directly, they cannot do so using their private IP addresses because
+those addresses are not routable on the public internet. WebRTC needs a
+way for each peer to discover its own public-facing IP address and
+port.</p>
+<h2 id="how-a-stun-server-works">How a STUN Server Works</h2>
+<p>A STUN server acts as a simple, external lookup tool. Because it is
+located on the public internet, any device can send a request to it. The
+process works as follows:</p>
+<ol type="1">
+<li><strong>The Query:</strong> Peer A sends a request to the STUN
+server.</li>
+<li><strong>The Response:</strong> The STUN server inspects the incoming
+packet to see what IP address and port the request originated from
+(which is the router's public IP and mapped port).</li>
+<li><strong>The Discovery:</strong> The STUN server sends this public IP
+address and port back to Peer A.</li>
+</ol>
+<p>Once Peer A knows its public-facing details, it can share this
+information with Peer B through a signaling channel. Peer B does the
+same, allowing both parties to establish a direct, peer-to-peer
+connection.</p>
+<h2 id="part-of-the-ice-framework">Part of the ICE Framework</h2>
+<p>STUN is a core component of the Interactive Connectivity
+Establishment (ICE) framework used by WebRTC. During the connection
+setup, WebRTC gathers multiple "ICE candidates," which are potential
+pathways for the connection. These candidates include:</p>
+<ul>
+<li><strong>Local candidates:</strong> Local private IP addresses.</li>
+<li><strong>Server-reflexive candidates:</strong> Public IP addresses
+discovered via STUN.</li>
+<li><strong>Relay candidates:</strong> IP addresses routed through TURN
+servers (used when STUN fails).</li>
+</ul>
+<p>WebRTC prioritizes STUN-derived candidates because they allow for
+direct peer-to-peer connections, which offer the lowest latency and
+require no ongoing bandwidth costs for the application developer.</p>
+<h2 id="why-stun-is-the-preferred-first-step">Why STUN is the Preferred
+First Step</h2>
+<p>WebRTC relies on STUN servers because they are incredibly lightweight
+and cost-effective. Unlike TURN (Traversal Using Relays around NAT)
+servers, which relay the actual media stream and consume massive amounts
+of bandwidth, a STUN server only handles the initial discovery request.
+Once the public IP and port are shared, the STUN server's job is done,
+and the actual media traffic flows directly between the peers. Because
+of this efficiency, STUN is always the first choice for WebRTC
+connection establishment.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

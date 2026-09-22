@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC ICE Connection Failure Recovery Guide - webrtc</title>
+    <meta name="description" content="WebRTC applications rely on Interactive Connectivity Establishment (ICE) to establish peer-to-peer connections, but network fluctuations, firewall changes, or IP switches can cause these connections to unexpectedly fail. This article explores how to buil">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/web-rtc-ice-connection-failure-recovery-guide">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="WebRTC ICE Connection Failure Recovery Guide - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/web-rtc-ice-connection-failure-recovery-guide" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="WebRTC applications rely on Interactive Connectivity Establishment (ICE) to establish peer-to-peer connections, but network fluctuations, firewall changes, or IP switches can cause these connections to unexpectedly fail. This article explores how to buil" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="webrtc-ice-connection-failure-recovery-guide">WebRTC ICE
+Connection Failure Recovery Guide</h1>
+<p>WebRTC applications rely on Interactive Connectivity Establishment
+(ICE) to establish peer-to-peer connections, but network fluctuations,
+firewall changes, or IP switches can cause these connections to
+unexpectedly fail. This article explores how to build a resilient WebRTC
+application that seamlessly recovers from ICE connection failures. We
+will cover monitoring connection states, implementing ICE restarts,
+using TURN servers as fallbacks, and managing signaling renegotiation to
+ensure uninterrupted real-time communication.</p>
+<h2 id="detecting-ice-connection-failures">Detecting ICE Connection
+Failures</h2>
+<p>To recover from a failure, your application must first detect it. You
+can monitor the connection state by listening to the
+<code>iceconnectionstatechange</code> event on the
+<code>RTCPeerConnection</code> instance.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>peerConnection<span class="op">.</span><span class="fu">addEventListener</span>(<span class="st">&#39;iceconnectionstatechange&#39;</span><span class="op">,</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">const</span> state <span class="op">=</span> peerConnection<span class="op">.</span><span class="at">iceConnectionState</span><span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (state <span class="op">===</span> <span class="st">&#39;failed&#39;</span>) {</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">handleIceFailure</span>()<span class="op">;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (state <span class="op">===</span> <span class="st">&#39;disconnected&#39;</span>) {</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">handleTemporaryDisruption</span>()<span class="op">;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>})<span class="op">;</span></span></code></pre></div>
+<ul>
+<li><strong>Disconnected:</strong> This state indicates a temporary
+disruption (e.g., a user walking out of Wi-Fi range). The ICE agent may
+still recover automatically if the network stabilizes.</li>
+<li><strong>Failed:</strong> This state occurs when the ICE agent has
+tested all active candidate pairs and failed to find a compatible
+connection path. This is the trigger to initiate an active recovery
+process.</li>
+</ul>
+<h2 id="initiating-an-ice-restart">Initiating an ICE Restart</h2>
+<p>The standard and most efficient way to recover from an ICE failure is
+by performing an ICE restart. An ICE restart forces both peers to throw
+away their old network candidates, gather new ones, and exchange them
+via the signaling server—all without tearing down the existing media
+tracks or renegotiating the entire session.</p>
+<p>To trigger an ICE restart, the initiating peer creates a new SDP
+offer with the <code>iceRestart</code> option set to
+<code>true</code>:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="kw">function</span> <span class="fu">handleIceFailure</span>() {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">try</span> {</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> offer <span class="op">=</span> <span class="cf">await</span> peerConnection<span class="op">.</span><span class="fu">createOffer</span>({ <span class="dt">iceRestart</span><span class="op">:</span> <span class="kw">true</span> })<span class="op">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> peerConnection<span class="op">.</span><span class="fu">setLocalDescription</span>(offer)<span class="op">;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sendSignalingMessage</span>({ <span class="dt">type</span><span class="op">:</span> <span class="st">&#39;offer&#39;</span><span class="op">,</span> <span class="dt">sdp</span><span class="op">:</span> peerConnection<span class="op">.</span><span class="at">localDescription</span> })<span class="op">;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">catch</span> (error) {</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(<span class="st">&#39;Failed to initiate ICE restart:&#39;</span><span class="op">,</span> error)<span class="op">;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>When the remote peer receives this new offer, it will automatically
+recognize the ICE restart request, generate new candidates of its own,
+and respond with an SDP answer.</p>
+<h2 id="ensuring-robust-turn-server-configuration">Ensuring Robust TURN
+Server Configuration</h2>
+<p>ICE restarts are only successful if viable network paths exist. In
+restrictive network environments (such as corporate firewalls or
+symmetric NATs), direct peer-to-peer connection attempts will fail
+repeatedly.</p>
+<p>To guarantee recovery, your <code>RTCConfiguration</code> must
+include high-availability TURN (Traversal Using Relays around NAT)
+servers. If a direct path cannot be established during the ICE restart,
+the ICE agent will fall back to routing media through the TURN server,
+securing a stable connection at the cost of slight relay latency. Always
+configure both TURN over UDP and TURN over TCP (typically port 443) to
+bypass strict firewall rules.</p>
+<h2 id="managing-perfect-negotiation-to-avoid-collisions">Managing
+Perfect Negotiation to Avoid Collisions</h2>
+<p>In a bidirectional application, both peers might detect the ICE
+failure at the same time and attempt to initiate an ICE restart
+simultaneously. This can cause signaling glare and state conflicts.</p>
+<p>To prevent this, implement the "Perfect Negotiation" pattern
+recommended by the W3C. This pattern designates one peer as "polite" and
+the other as "impolite":</p>
+<ul>
+<li><strong>Impolite Peer:</strong> Ignores incoming offers when it has
+an outstanding local offer, forcing its own state.</li>
+<li><strong>Polite Peer:</strong> Consistently backs down and accepts
+incoming offers if a collision occurs, even if it has already generated
+its own local offer.</li>
+</ul>
+<p>Using perfect negotiation ensures that regardless of who initiates
+the ICE restart first, the signaling states remain synchronized and the
+connection recovers smoothly.</p>
+<h2
+id="implementing-graceful-degradation-and-reconnection-limits">Implementing
+Graceful Degradation and Reconnection Limits</h2>
+<p>Network issues can sometimes be persistent (e.g., a complete loss of
+internet access). Your application should handle these scenarios
+gracefully:</p>
+<ol type="1">
+<li><strong>Limit Restart Attempts:</strong> Implement an exponential
+backoff algorithm for your ICE restarts. Do not loop restarts
+infinitely, as this wastes device battery and floods your signaling
+server.</li>
+<li><strong>Provide UI Feedback:</strong> Inform the user when the
+connection is unstable ("Reconnecting...") and update the UI once the
+connection is successfully restored.</li>
+<li><strong>Manual Reconnect Fallback:</strong> If automated ICE
+restarts fail after a set threshold (e.g., three attempts over 30
+seconds), close the peer connection entirely and prompt the user with a
+manual "Reconnect" button to rebuild the session from scratch.</li>
+</ol></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

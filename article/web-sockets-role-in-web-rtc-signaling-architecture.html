@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSockets Role in WebRTC Signaling Architecture - webrtc</title>
+    <meta name="description" content="WebRTC enables real-time, peer-to-peer audio, video, and data streaming directly between browsers. However, before two peers can connect, they must exchange session metadata, network addresses, and media capabilities through a process known as signaling.">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/web-sockets-role-in-web-rtc-signaling-architecture">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="WebSockets Role in WebRTC Signaling Architecture - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/web-sockets-role-in-web-rtc-signaling-architecture" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="WebRTC enables real-time, peer-to-peer audio, video, and data streaming directly between browsers. However, before two peers can connect, they must exchange session metadata, network addresses, and media capabilities through a process known as signaling." />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="websockets-role-in-webrtc-signaling-architecture">WebSockets
+Role in WebRTC Signaling Architecture</h1>
+<p>WebRTC enables real-time, peer-to-peer audio, video, and data
+streaming directly between browsers. However, before two peers can
+connect, they must exchange session metadata, network addresses, and
+media capabilities through a process known as signaling. This article
+explains the vital role WebSockets play as the primary transport
+mechanism for WebRTC signaling, detailing how they facilitate connection
+establishment and manage session states.</p>
+<h2 id="the-need-for-signaling-in-webrtc">The Need for Signaling in
+WebRTC</h2>
+<p>WebRTC is designed for peer-to-peer (P2P) communication, but peers
+cannot discover or connect to each other automatically. They require an
+external discovery channel to coordinate the connection. This
+coordination process, called signaling, requires peers to exchange two
+main types of information:</p>
+<ul>
+<li><strong>Session Description Protocol (SDP):</strong> Metadata
+detailing media capabilities, codecs, and resolutions.</li>
+<li><strong>Interactive Connectivity Establishment (ICE)
+Candidates:</strong> Network routing information, including IP addresses
+and ports, used to bypass firewalls and NATs.</li>
+</ul>
+<p>Because WebRTC does not define a standard signaling protocol,
+developers must implement their own. WebSockets have become the industry
+standard for this task.</p>
+<h2 id="why-websockets-are-used-for-signaling">Why WebSockets are Used
+for Signaling</h2>
+<p>WebSockets provide a persistent, bi-directional, and low-latency TCP
+connection between the client and the signaling server. This makes them
+ideal for WebRTC signaling for several reasons:</p>
+<ul>
+<li><strong>Bidirectional Communication:</strong> Unlike traditional
+HTTP polling, where the client must repeatedly request updates,
+WebSockets allow the signaling server to push data (such as an incoming
+call offer or ICE candidate) to the target peer instantly.</li>
+<li><strong>Low Latency:</strong> Establishing a WebRTC connection
+requires rapid exchange of signaling messages. WebSockets eliminate the
+overhead of repeatedly opening and closing HTTP connections, ensuring
+fast call setup times.</li>
+<li><strong>Full-Duplex Data Flow:</strong> Both peers and the server
+can send and receive messages simultaneously, which is crucial during
+the ICE candidate gathering phase where multiple network paths are
+tested at once.</li>
+</ul>
+<h2 id="the-websockets-signaling-workflow">The WebSockets Signaling
+Workflow</h2>
+<p>In a typical WebRTC architecture, the WebSocket signaling flow
+follows a structured sequence:</p>
+<ol type="1">
+<li><strong>Connection:</strong> Both Peer A and Peer B establish a
+persistent WebSocket connection to a centralized signaling server.</li>
+<li><strong>The Offer:</strong> Peer A creates an SDP offer and sends it
+to the signaling server via the WebSocket connection.</li>
+<li><strong>Forwarding the Offer:</strong> The signaling server
+identifies Peer B and forwards Peer A's SDP offer over Peer B's active
+WebSocket connection.</li>
+<li><strong>The Answer:</strong> Peer B receives the offer, generates an
+SDP answer, and sends it back to the signaling server via WebSocket,
+which then forwards it to Peer A.</li>
+<li><strong>ICE Candidate Exchange:</strong> Simultaneously, both peers
+begin gathering ICE candidates. As candidates are found, they are sent
+individually as trickle-ICE messages through the WebSocket server to the
+opposing peer.</li>
+<li><strong>P2P Connection Established:</strong> Once the SDPs and ICE
+candidates are successfully exchanged, the peers establish a direct P2P
+media connection.</li>
+</ol>
+<h2 id="post-connection-role-of-websockets">Post-Connection Role of
+WebSockets</h2>
+<p>Once the direct WebRTC peer-to-peer connection is established, the
+media traffic (audio, video, and data channels) flows directly between
+the peers, bypassing the signaling server entirely.</p>
+<p>However, the WebSocket signaling connection is typically kept open.
+It serves as a fallback channel for session renegotiation (such as
+adding a video track to an audio-only call), handling network changes,
+and gracefully tearing down the call when a user hangs up.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

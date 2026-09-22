@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What is Forward Error Correction in WebRTC - webrtc</title>
+    <meta name="description" content="In real-time communications, network packet loss can severely degrade audio and video quality, leading to choppy audio and frozen video frames. This article explains Forward Error Correction (FEC), a proactive error-recovery mechanism used in WebRTC to r">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/what-is-forward-error-correction-in-web-rtc">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="What is Forward Error Correction in WebRTC - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/what-is-forward-error-correction-in-web-rtc" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="In real-time communications, network packet loss can severely degrade audio and video quality, leading to choppy audio and frozen video frames. This article explains Forward Error Correction (FEC), a proactive error-recovery mechanism used in WebRTC to r" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="what-is-forward-error-correction-in-webrtc">What is Forward
+Error Correction in WebRTC</h1>
+<p>In real-time communications, network packet loss can severely degrade
+audio and video quality, leading to choppy audio and frozen video
+frames. This article explains Forward Error Correction (FEC), a
+proactive error-recovery mechanism used in WebRTC to rebuild lost data
+packets without waiting for retransmissions. We will explore how WebRTC
+implements FEC for both audio and video streams to maintain
+high-quality, low-latency communication even over unstable network
+connections.</p>
+<h2 id="understanding-forward-error-correction-fec">Understanding
+Forward Error Correction (FEC)</h2>
+<p>Forward Error Correction is a digital signal processing technique
+used to detect and correct errors in data transmission over unreliable
+or noisy communication channels. Unlike reactive error recovery
+methods—such as Automatic Repeat reQuest (ARQ), which requests the
+sender to retransmit lost packets—FEC is proactive.</p>
+<p>With FEC, the sender transmits redundant data alongside the original
+media payload. If a packet is lost during transit, the receiver uses
+this redundant information to mathematically reconstruct the missing
+packet on the fly. Because the receiver does not need to request a
+retransmission, FEC eliminates the round-trip time delay associated with
+packet recovery, making it ideal for real-time applications like WebRTC
+where low latency is critical.</p>
+<h2 id="how-webrtc-implements-fec-for-audio">How WebRTC Implements FEC
+for Audio</h2>
+<p>WebRTC relies on different FEC mechanisms depending on whether it is
+transmitting audio or video. For audio, WebRTC primarily uses the Opus
+codec, which has built-in FEC capabilities.</p>
+<h3 id="opus-in-band-fec">Opus In-Band FEC</h3>
+<p>The Opus audio codec utilizes a feature called Low Bit-Rate
+Redundancy (LBRR). Instead of sending entirely separate FEC packets,
+Opus embeds a highly compressed, lower-bitrate copy of the previous
+audio packet inside the current audio packet.</p>
+<ul>
+<li>If Packet 1 is successfully delivered but Packet 2 is lost, the
+receiver waits for Packet 3.</li>
+<li>Packet 3 contains the primary payload for its own audio frame, plus
+a low-bitrate redundant payload for Packet 2.</li>
+<li>The receiver extracts this redundant data to reconstruct Packet 2.
+While the reconstructed packet is of slightly lower quality, the audio
+remains continuous and free of audible gaps.</li>
+</ul>
+<h3 id="red-redundant-audio-data">RED (Redundant Audio Data)</h3>
+<p>WebRTC also supports RED (RFC 2198), an encapsulation format that
+wraps multiple redundant copies of previous audio frames into a single
+RTP packet. This provides stronger protection against consecutive packet
+losses (burst loss) at the expense of higher bandwidth consumption.</p>
+<h2 id="how-webrtc-implements-fec-for-video">How WebRTC Implements FEC
+for Video</h2>
+<p>Because video streams require much higher bandwidth and have
+different packet structures than audio, WebRTC handles video FEC
+differently, utilizing dedicated protection packets.</p>
+<h3 id="ulpfec-uneven-level-protection-fec">ULPFEC (Uneven Level
+Protection FEC)</h3>
+<p>ULPFEC (RFC 5109) generates separate parity packets from a group of
+media packets. It uses Exclusive OR (XOR) operations to create these
+parity packets.</p>
+<ul>
+<li>If a single video packet within a protected group is lost, the
+receiver can reconstruct it by performing an XOR operation on the
+remaining packets and the parity packet.</li>
+<li>"Uneven Level Protection" means WebRTC can prioritize protecting
+critical video data (like keyframes/I-frames) over less critical data
+(like delta/P-frames).</li>
+</ul>
+<h3 id="flexfec-flexible-forward-error-correction">FlexFEC (Flexible
+Forward Error Correction)</h3>
+<p>FlexFEC (RFC 8627) is a newer and more advanced implementation in
+WebRTC. It improves upon ULPFEC by supporting both 1D (one-dimensional)
+and 2D (two-dimensional) parity structures. This allows FlexFEC to
+protect against both random packet loss and burst packet loss (where
+multiple consecutive packets are lost) much more effectively, while also
+offering better compatibility with modern transport protocols.</p>
+<h2 id="the-trade-off-bandwidth-vs-latency">The Trade-off: Bandwidth vs.
+Latency</h2>
+<p>While FEC is highly effective at eliminating latency caused by packet
+retransmissions, it comes with a cost: increased bandwidth consumption.
+Sending redundant data means WebRTC must transmit more data over the
+network.</p>
+<p>To manage this trade-off, WebRTC implements dynamic FEC. By analyzing
+Real-Time Control Protocol (RTCP) feedback reports, WebRTC constantly
+monitors network conditions such as packet loss rate, round-trip time
+(RTT), and available bandwidth.</p>
+<ul>
+<li><strong>Low Packet Loss:</strong> WebRTC reduces or disables FEC to
+conserve bandwidth.</li>
+<li><strong>High Packet Loss:</strong> WebRTC dynamically increases the
+amount of FEC redundancy to prioritize stream stability and quality over
+bandwidth efficiency.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

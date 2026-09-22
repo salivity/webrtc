@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC Supported Video Codecs - webrtc</title>
+    <meta name="description" content="To establish successful real-time video communication, WebRTC-enabled browsers must agree on a common format to compress and decompress video data. This article outlines the video codecs that are universally supported across all major WebRTC browser impl">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/web-rtc-supported-video-codecs">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="WebRTC Supported Video Codecs - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/web-rtc-supported-video-codecs" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="To establish successful real-time video communication, WebRTC-enabled browsers must agree on a common format to compress and decompress video data. This article outlines the video codecs that are universally supported across all major WebRTC browser impl" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="webrtc-supported-video-codecs">WebRTC Supported Video
+Codecs</h1>
+<p>To establish successful real-time video communication, WebRTC-enabled
+browsers must agree on a common format to compress and decompress video
+data. This article outlines the video codecs that are universally
+supported across all major WebRTC browser implementations—such as Google
+Chrome, Mozilla Firefox, Apple Safari, and Microsoft Edge—explaining the
+mandatory standards that guarantee cross-browser compatibility and how
+browsers negotiate these formats.</p>
+<h2 id="the-universally-mandated-codecs-vp8-and-h264">The Universally
+Mandated Codecs: VP8 and H.264</h2>
+<p>According to the WebRTC specifications defined by the Internet
+Engineering Task Force (IETF) in RFC 7742, all WebRTC-compliant browsers
+must support two primary video codecs to ensure universal
+interoperability: <strong>VP8</strong> and <strong>H.264 (Constrained
+Baseline Profile)</strong>.</p>
+<p>Because different browser vendors originally disagreed on which codec
+should be the single standard—Google and Mozilla favored the
+royalty-free VP8, while Apple and Microsoft preferred the
+hardware-accelerated H.264—the IETF compromised by mandating that all
+browsers must implement both.</p>
+<h3 id="1-vp8">1. VP8</h3>
+<p>VP8 is an open-source, royalty-free video compression format
+developed by On2 Technologies and acquired by Google.</p>
+<ul>
+<li><strong>Universal Support:</strong> Supported by Chrome, Firefox,
+Safari, and Edge.</li>
+<li><strong>Performance:</strong> It is highly optimized for real-time
+communication on the web, offering a great balance between video quality
+and CPU utilization.</li>
+<li><strong>Licensing:</strong> Because it is royalty-free, developers
+can use VP8 without worrying about licensing fees.</li>
+</ul>
+<h3 id="2-h264-constrained-baseline-profile">2. H.264 (Constrained
+Baseline Profile)</h3>
+<p>H.264 (specifically the Constrained Baseline Profile) is a widely
+adopted industry standard for video compression.</p>
+<ul>
+<li><strong>Universal Support:</strong> Supported by Chrome, Firefox,
+Safari, and Edge.</li>
+<li><strong>Performance:</strong> Its primary advantage is widespread
+hardware acceleration. Most modern smartphones, tablets, and computers
+have dedicated hardware chips to decode H.264, which significantly
+reduces CPU usage and saves battery life.</li>
+<li><strong>Licensing:</strong> Unlike VP8, H.264 is patented by the
+MPEG LA consortium, though browser vendors (like Cisco providing
+OpenH264 for Firefox) have mitigated licensing hurdles for
+developers.</li>
+</ul>
+<hr />
+<h2 id="how-browsers-negotiate-codecs">How Browsers Negotiate
+Codecs</h2>
+<p>When a WebRTC connection is initiated, the two peer browsers do not
+automatically know which codecs the other supports or prefers. To
+resolve this, they use the <strong>Session Description Protocol
+(SDP)</strong> during the signaling phase.</p>
+<ol type="1">
+<li><strong>The Offer:</strong> The initiating browser sends an SDP
+"Offer" listing all the video codecs it supports, ordered by
+preference.</li>
+<li><strong>The Answer:</strong> The receiving browser compares this
+list with its own supported codecs, selects the best mutually supported
+option, and sends back an SDP "Answer."</li>
+<li><strong>The Connection:</strong> Since both VP8 and H.264 are
+universally implemented, WebRTC connections between any major browsers
+will always find a common codec to establish the video stream.</li>
+</ol>
+<hr />
+<h2 id="next-generation-codecs-vp9-and-av1">Next-Generation Codecs: VP9
+and AV1</h2>
+<p>While VP8 and H.264 are the only <em>universally mandated</em> codecs
+for compatibility, modern WebRTC implementations frequently support
+newer, more efficient codecs.</p>
+<ul>
+<li><strong>VP9:</strong> The successor to VP8, offering roughly 30-40%
+better compression at the same quality. It is supported by Chrome,
+Firefox, Edge, and Safari (on newer OS versions).</li>
+<li><strong>AV1:</strong> An open, royalty-free codec designed for the
+future of ultra-high-definition streaming. It offers superior
+compression compared to VP9 and H.264. While Chrome, Firefox, and Safari
+have added support for AV1, it is not yet considered universally viable
+for older hardware due to high encoding CPU demands.</li>
+</ul>
+<p>For guaranteed compatibility across every major browser and legacy
+device, developers should ensure their WebRTC configurations allow for
+fallback to <strong>VP8</strong> and <strong>H.264</strong>.</p></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>

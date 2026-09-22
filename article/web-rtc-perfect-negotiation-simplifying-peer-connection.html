@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC Perfect Negotiation: Simplifying Peer Connection - webrtc</title>
+    <meta name="description" content="Establishing a peer-to-peer connection in WebRTC has historically required complex, error-prone signaling logic to handle state synchronization and race conditions. The WebRTC Perfect Negotiation pattern solves these issues by decoupling negotiation logi">
+    <link rel="canonical" href="https://salivity.github.io/webrtc/article/web-rtc-perfect-negotiation-simplifying-peer-connection">
+    <link rel="search" type="application/opensearchdescription+xml" title="webrtc" href="/webrtc/opensearch.xml">
+    <link rel="icon" href="/webrtc/favicon.ico">
+    <link rel="stylesheet" href="/webrtc/css/style.css">
+    <link media="print" rel="stylesheet" href="/webrtc/css/print.css">
+    <script src="/webrtc/js/fuse.min.js"></script>
+    <script src="/webrtc/js/script.js"></script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/4.1.3/tex-chtml.min.js" defer></script>
+    <script src="/monetize/monetize.js"></script>
+    <script src="/social/social.js"></script>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="WebRTC Perfect Negotiation: Simplifying Peer Connection - webrtc" />
+    <meta property="og:url" content="https://salivity.github.io/webrtc/article/web-rtc-perfect-negotiation-simplifying-peer-connection" />
+    <meta property="og:image" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:secure_url" content="https://salivity.github.io/webrtc/images/open-graph/default.webp" />
+    <meta property="og:image:width" content="1120" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:description" content="Establishing a peer-to-peer connection in WebRTC has historically required complex, error-prone signaling logic to handle state synchronization and race conditions. The WebRTC Perfect Negotiation pattern solves these issues by decoupling negotiation logi" />
+    <link rel="manifest" href="/webrtc/pwa/manifest.json" />
+</head>
+<body>
+    <header>
+        <a href="/webrtc/" aria-label="Go To Home Page" title="Go To Home Page" id="logo">
+            <span>salivity.github.io/</span><span>webrtc</span>
+        </a>
+        <nav>
+            <ul class="header-links">
+                <li><a href="/webrtc/search" title="Search" aria-label="Go To Search Page"><svg class="svg-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"></path></svg></a></li>
+                <li><a id="theme-toggle" title="Theme" href="javascript:void(0);" aria-label="Toggle Website Theme"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        
+    <div class="article-layout">
+        <aside id="profile-sidebar" class="profile-column" aria-label="Author Profile"></aside>
+        <div class="article-main-column">
+            <article><h1 id="webrtc-perfect-negotiation-simplifying-peer-connection">WebRTC
+Perfect Negotiation: Simplifying Peer Connection</h1>
+<p>Establishing a peer-to-peer connection in WebRTC has historically
+required complex, error-prone signaling logic to handle state
+synchronization and race conditions. The WebRTC Perfect Negotiation
+pattern solves these issues by decoupling negotiation logic from
+application state and assigning predictable roles to each peer. This
+article explains how the Perfect Negotiation pattern works, why it
+eliminates the notorious "glare" problem, and how it drastically
+simplifies modern WebRTC implementations.</p>
+<h2 id="the-problem-glare-and-state-desynchronization">The Problem:
+Glare and State Desynchronization</h2>
+<p>In traditional WebRTC setups, both peers can attempt to modify the
+connection simultaneously—such as adding a video track at the exact same
+moment. This creates a collision known as "glare."</p>
+<p>When glare occurs, both peers generate and send a Session Description
+Protocol (SDP) offer. Because the WebRTC state machine is highly
+state-sensitive, receiving an offer while you have an outstanding local
+offer causes a conflict. Without a strict resolution strategy, the
+connection fails, requiring developers to write complex, fragile state
+machines to catch errors, roll back descriptions, and renegotiate.</p>
+<h2 id="how-perfect-negotiation-solves-it">How Perfect Negotiation
+Solves It</h2>
+<p>Perfect Negotiation introduces a simple, asymmetrical framework to
+resolve glare automatically. Instead of treating peers identically, one
+peer is designated as <strong>polite</strong> and the other as
+<strong>impolite</strong>.</p>
+<ul>
+<li><strong>The Polite Peer:</strong> If a collision occurs, the polite
+peer backs down. It discards its own pending local offer, accepts the
+incoming offer from the impolite peer, and responds with an answer.</li>
+<li><strong>The Impolite Peer:</strong> If a collision occurs, the
+impolite peer ignores the incoming offer and insists on its own. It
+waits for the polite peer to back down and accept its offer.</li>
+</ul>
+<p>By establishing this simple asymmetry, one peer's offer is guaranteed
+to win in any collision scenario. The entire negotiation state is
+resolved deterministically without the application having to manually
+track who started the call or tear down the connection.</p>
+<h2 id="the-perfect-negotiation-implementation-loop">The Perfect
+Negotiation Implementation Loop</h2>
+<p>The beauty of this pattern lies in its implementation. Using modern
+WebRTC APIs, the logic can be consolidated into a single, reusable
+event-driven template. The pattern relies on three primary
+components:</p>
+<h3 id="1-handling-the-negotiationneeded-event">1. Handling the
+<code>negotiationneeded</code> Event</h3>
+<p>Whenever a change occurs that requires negotiation (like adding a
+track), the browser fires a <code>negotiationneeded</code> event. The
+application simply responds by creating and sending an offer:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>peerConnection<span class="op">.</span><span class="at">onnegotiationneeded</span> <span class="op">=</span> <span class="kw">async</span> () <span class="kw">=&gt;</span> {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">try</span> {</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    makingOffer <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> peerConnection<span class="op">.</span><span class="fu">setLocalDescription</span>()<span class="op">;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sendSignalingMessage</span>({ <span class="dt">description</span><span class="op">:</span> peerConnection<span class="op">.</span><span class="at">localDescription</span> })<span class="op">;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">catch</span> (err) {</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(err)<span class="op">;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">finally</span> {</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    makingOffer <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>}<span class="op">;</span></span></code></pre></div>
+<p><em>Note: Calling <code>setLocalDescription()</code> without
+arguments automatically creates the appropriate offer or answer based on
+the current state.</em></p>
+<h3 id="2-processing-incoming-signaling-messages">2. Processing Incoming
+Signaling Messages</h3>
+<p>When a peer receives an incoming SDP description, it processes it
+using the polite/impolite logic:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">async</span> <span class="kw">function</span> <span class="fu">handleSignalingMessage</span>({ description<span class="op">,</span> candidate }) {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">try</span> {</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (description) {</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>      <span class="kw">const</span> offerCollision <span class="op">=</span> (description<span class="op">.</span><span class="at">type</span> <span class="op">===</span> <span class="st">&quot;offer&quot;</span>) <span class="op">&amp;&amp;</span> </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                             (makingOffer <span class="op">||</span> peerConnection<span class="op">.</span><span class="at">signalingState</span> <span class="op">!==</span> <span class="st">&quot;stable&quot;</span>)<span class="op">;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>      <span class="co">// Ignore the offer if we are impolite and a collision occurs</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>      ignoreOffer <span class="op">=</span> <span class="op">!</span>isPolite <span class="op">&amp;&amp;</span> offerCollision<span class="op">;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (ignoreOffer) {</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span><span class="op">;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>      <span class="co">// If we are polite and there is a collision, rollback our own offer</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (offerCollision) {</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">await</span> <span class="bu">Promise</span><span class="op">.</span><span class="fu">all</span>([</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>          peerConnection<span class="op">.</span><span class="fu">setLocalDescription</span>({ <span class="dt">type</span><span class="op">:</span> <span class="st">&quot;rollback&quot;</span> })<span class="op">,</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>          peerConnection<span class="op">.</span><span class="fu">setRemoteDescription</span>(description)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>        ])<span class="op">;</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> {</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">await</span> peerConnection<span class="op">.</span><span class="fu">setRemoteDescription</span>(description)<span class="op">;</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>      <span class="co">// If it was an offer, send back an answer</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (description<span class="op">.</span><span class="at">type</span> <span class="op">===</span> <span class="st">&quot;offer&quot;</span>) {</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">await</span> peerConnection<span class="op">.</span><span class="fu">setLocalDescription</span>()<span class="op">;</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>        <span class="fu">sendSignalingMessage</span>({ <span class="dt">description</span><span class="op">:</span> peerConnection<span class="op">.</span><span class="at">localDescription</span> })<span class="op">;</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> <span class="cf">if</span> (candidate) {</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>      <span class="cf">try</span> {</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">await</span> peerConnection<span class="op">.</span><span class="fu">addIceCandidate</span>(candidate)<span class="op">;</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">catch</span> (err) {</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (<span class="op">!</span>ignoreOffer) <span class="cf">throw</span> err<span class="op">;</span> <span class="co">// Ignore candidates if we ignored the offer</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">catch</span> (err) {</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    <span class="bu">console</span><span class="op">.</span><span class="fu">error</span>(err)<span class="op">;</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<h2 id="key-benefits-of-perfect-negotiation">Key Benefits of Perfect
+Negotiation</h2>
+<p>By adopting this pattern, developers gain several immediate
+advantages:</p>
+<ul>
+<li><strong>No Manual State Tracking:</strong> You no longer need to
+track variables like <code>isCaller</code> or manually manage peer
+connection states.</li>
+<li><strong>Seamless Dynamic Media:</strong> Users can add or remove
+video, audio, or data channels at any time without fear of breaking the
+connection.</li>
+<li><strong>Shorter Codebases:</strong> Perfect Negotiation reduces
+hundreds of lines of conditional signaling logic into a single,
+predictable block of code.</li>
+<li><strong>Automatic Rollbacks:</strong> WebRTC's native
+<code>rollback</code> mechanism handles the heavy lifting of restoring
+connection states during collisions.</li>
+</ul></article>
+        <div id="comments-container"></div>
+        <script>
+            const utterancesScript = document.createElement('script');
+            utterancesScript.setAttribute('src', 'https://utteranc.es/client.js');
+            utterancesScript.setAttribute('repo', 'salivity/webrtc'); 
+            utterancesScript.setAttribute('issue-term', 'pathname'); 
+            utterancesScript.setAttribute('theme', localStorage.getItem('theme') === 'dark' ? 'github-dark' : 'github-light'); 
+            utterancesScript.setAttribute('crossorigin', 'anonymous');
+            utterancesScript.async = true;
+            document.getElementById('comments-container').appendChild(utterancesScript);
+        </script>
+    
+        </div>
+    </div>
+    
+    </main>
+    <footer>
+        <nav>
+            <ul class="social-links">
+            </ul>
+        </nav>
+        <nav>
+            <ul class="footer-links">
+                <li><a href="/webrtc/privacy-policy">Privacy Policy</a></li>
+                <li><a href="/webrtc/terms-and-conditions">Terms and Conditions</a></li>
+            </ul>
+        </nav>
+        <div class="copyright">
+            Copyright &copy; <span id="current-year"></span>
+        </div>
+    </footer>
+</body>
+</html>
